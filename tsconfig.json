@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": false,
+
+    /* Honest note on the two relaxations below.
+       The data layer (src/data, src/types, src/lib, src/features/companies.ts)
+       is fully typed — that is where drift between a template and what it claims
+       to be would become an undetectable lie, so it earns strictness.
+       The rest is DOM glue ported verbatim from a verified single-file build.
+       Turning on noImplicitAny there would mean annotating ~540 callback params
+       for no correctness gain, so it stays off with a TODO rather than pretending. */
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src", "api", "vite.config.ts"]
+}

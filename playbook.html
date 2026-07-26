@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLAYBOOK // placement pattern engine</title>
+<meta name="description" content="53 DSA patterns in Python, C++ and Java, a real-CPython code visualiser, an empirical complexity analyser, and company OA intelligence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script type="module" src="/src/main-playbook.ts"></script>
+</head>
+<body>
+
+<div class="top"><div class="in">
+  <div class="brand">PLAY<b>BOOK</b></div>
+  <div class="navtabs" id="navtabs"></div>
+  <div class="countdown" id="cd"></div>
+</div></div>
+
+<!-- ===================== PATTERNS ===================== -->
+<section class="view on wrap" id="v-primers"></section>
+
+<section class="view wrap" id="v-patterns">
+  <div class="tag"><i></i><span>the syllabus // every pattern that gets asked</span></div>
+  <h2 class="mod">Pattern index</h2>
+  <p class="brief">Every template below carries the same four things: the <b>signal</b> that tells you it is this pattern, <b>why</b> it works, the <b>trap</b> that costs people the round, and the code in <b>Python, C++ and Java</b>. Search by keyword or symptom — try <code>window</code>, <code>cycle</code>, <code>O(1) space</code>, <code>topological</code>.</p>
+
+  <div style="margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <input type="text" id="pq" placeholder="search patterns, signals, problems…" style="flex:1;min-width:240px">
+    <span style="font-family:var(--mono);font-size:10.5px;color:var(--dim)" id="pcount"></span>
+  </div>
+
+  <div class="pb">
+    <div class="topiclist" id="topics"></div>
+    <div id="pane"></div>
+  </div>
+</section>
+
+<!-- ===================== VISUALISER ===================== -->
+<section class="view wrap" id="v-viz">
+  <div class="tag"><i></i><span>tracer // real cpython in your browser</span></div>
+  <h2 class="mod">Code visualiser</h2>
+  <p class="brief">Paste any Python and step through it. This runs <b>real CPython</b> compiled to WebAssembly, traced with <code>sys.settrace</code> — not a parser guessing at your code, but your code actually executing. Lists become cells, <b>2D lists become DP tables</b>, dicts and sets render as chips, and recursion gets a live <b>call stack</b>.</p>
+
+  <div class="subtabs" id="vzModes">
+    <button class="subtab on" data-m="trace">▶ trace</button>
+    <button class="subtab" data-m="cx">∿ complexity analyser</button>
+    <button class="subtab" data-m="st">⚔ stress tester</button>
+  </div>
+
+  <!-- ---------- TRACE MODE ---------- -->
+  <div id="vzTraceMode">
+  <div class="vzgrid">
+    <div class="console">
+      <div class="console-bar"><span class="led"></span><span>source</span>
+        <span style="flex:1"></span>
+        <select id="vzSample"><option value="">load an example…</option></select>
+      </div>
+      <div class="console-body" style="padding:14px">
+        <textarea id="vzCode" spellcheck="false"></textarea>
+        <div class="btnrow" style="margin-top:12px">
+          <button class="btn on" id="vzRun">▶ trace it</button>
+          <button class="btn mag" id="vzClear">clear</button>
+          <button class="btn amb" id="vzWb" title="no highlighting, no output, no run button until you commit">▢ whiteboard</button>
+          <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em">MAX STEPS</span>
+          <input type="range" id="vzLimit" min="1000" max="80000" step="1000" value="25000" style="max-width:120px">
+          <span style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)" id="vzLimitL">25000</span>
+        </div>
+        <div class="out" id="vzOut" style="display:none"></div>
+      </div>
+      <div class="vzstatus" id="vzStatus">Pyodide loads on first run. It will try a local copy first, then four CDNs.</div>
+    </div>
+
+    <div class="console">
+      <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>execution</span>
+        <span style="flex:1"></span>
+        <select id="vzPick" style="max-width:170px"><option value="">auto</option></select>
+        <span style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)" id="vzFrame">0 / 0</span>
+      </div>
+      <div class="console-body" style="padding:16px 14px">
+        <div id="vzStage"></div>
+        <div id="vzArrName" class="subtle"></div>
+        <div class="stats" id="vzCounters" style="margin-top:14px"></div>
+        <div class="stats" id="vzVars" style="margin-top:10px"></div>
+        <div id="vzStackWrap" style="display:none;margin-top:14px">
+          <div class="subtle" style="margin-bottom:6px">CALL STACK</div>
+          <div id="vzStack" class="callstack"></div>
+        </div>
+      </div>
+      <div class="scrub" id="vzScrubBar"><i id="vzScrub"></i></div>
+      <div class="console-body" style="padding:0"><div class="code" id="vzLines"></div></div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line)">
+        <button class="btn" id="vzPlay">▶ play</button>
+        <button class="btn" id="vzPrev">◀</button>
+        <button class="btn" id="vzNext">▶</button>
+        <button class="btn amb" id="vzOut2" title="run to the next time this line's function returns">step out</button>
+        <button class="btn mag" id="vzReset">↺</button>
+        <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em">SPEED</span>
+        <input type="range" id="vzSpeed" min="1" max="10" value="7" style="max-width:110px">
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>Keyboard:</b> <code>space</code> play/pause · <code>←</code> <code>→</code> step · <code>R</code> reset · <code>Ctrl+Enter</code> runs the trace. <b>Click any source line</b> in the right panel to jump to the next time it executes. <b>Click the progress bar</b> to scrub.</div>
+  </div>
+
+  <!-- ---------- STRESS MODE ---------- -->
+  <div id="vzStMode" style="display:none">
+    <div class="vzgrid">
+      <div class="console">
+        <div class="console-bar"><span class="led"></span><span>brute · fast · gen</span>
+          <span style="flex:1"></span>
+          <select id="stSample"><option value="">load an example…</option></select>
+        </div>
+        <div class="console-body" style="padding:14px">
+          <textarea id="stCode" spellcheck="false" style="min-height:380px"></textarea>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn on" id="stRun">⚔ hunt for a counterexample</button>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em">TRIALS</span>
+            <input type="range" id="stTrials" min="200" max="20000" step="200" value="3000" style="max-width:120px">
+            <span style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)" id="stTrialsL">3000</span>
+          </div>
+        </div>
+        <div class="vzstatus" id="stStatus">Write <code>brute(a)</code> you trust, <code>fast(a)</code> you do not, and <code>gen(rng)</code> to make small random inputs.</div>
+      </div>
+      <div class="console">
+        <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>counterexample</span></div>
+        <div class="console-body" style="padding:18px">
+          <div id="stOut"><p class="subtle" style="letter-spacing:0;text-transform:none;font-family:var(--disp);font-size:13.5px;color:var(--dim)">Nothing yet. Load an example and hit hunt — three of the five have a real bug in them.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>Why this is the highest-value tool here.</b> "Fails on hidden test 7" is unactionable. This finds the disagreement, then <b>shrinks</b> it — halving the input, dropping single elements, pulling values toward zero — until you have the smallest case that still fails. A 500-element failure becomes <code>[-1]</code>, and a 500-element failure you cannot debug becomes a two-minute fix. Every competitive programmer does this; almost no interview prep teaches it.</div>
+  </div>
+
+  <!-- ---------- COMPLEXITY MODE ---------- -->
+  <div id="vzCxMode" style="display:none">
+    <div class="vzgrid">
+      <div class="console">
+        <div class="console-bar"><span class="led"></span><span>define solve(a)</span>
+          <span style="flex:1"></span>
+          <select id="cxSample"><option value="">load an example…</option></select>
+        </div>
+        <div class="console-body" style="padding:14px">
+          <textarea id="cxCode" spellcheck="false" style="min-height:250px"></textarea>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn on" id="cxRun">∿ measure it</button>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em">INPUT</span>
+            <select id="cxGen" style="max-width:160px">
+              <option value="rand">random list</option>
+              <option value="sorted">sorted list</option>
+              <option value="revsorted">reverse-sorted list</option>
+              <option value="string">random string</option>
+              <option value="int">just n (integer)</option>
+            </select>
+          </div>
+        </div>
+        <div class="vzstatus" id="cxStatus">Write a function called <code>solve(a)</code>. It gets timed at increasing input sizes, with small sizes auto-repeated to beat the browser clock.</div>
+      </div>
+      <div class="console">
+        <div class="console-bar"><span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span><span>measured growth · log–log</span></div>
+        <div class="console-body" style="padding:16px 14px">
+          <canvas id="cxChart" height="260" style="width:100%;display:block"></canvas>
+          <div id="cxVerdict" style="margin-top:16px"></div>
+          <table class="t" id="cxTable" style="margin-top:14px"></table>
+        </div>
+      </div>
+    </div>
+    <div class="note"><b>What this does that a code review cannot:</b> it does not infer your complexity from the shape of your loops — it <b>measures</b> it. Your function is timed at n = 400 … 12800 and a log–log regression recovers the empirical exponent. Slope 1.0 is linear, 2.0 quadratic, ~1.1 with curvature is n log n.<br><br>It measures <b>wall-clock time on purpose</b>. Counting executed lines would be tidier but it lies: <code>x in some_list</code> is a single line hiding an O(n) scan, and <code>sorted()</code> is a single line hiding all of the work. Timing sees straight through to the real cost — which is exactly where hidden quadratics live.<br><br><span style="color:var(--dim)">Caveat worth knowing: browsers coarsen their clock for security, so tiny inputs are repeated automatically until each measurement is long enough to trust. Very fast functions will still show noise at the smallest sizes.</span></div>
+  </div>
+</section>
+
+<!-- ===================== DRILL ===================== -->
+<section class="view wrap" id="v-drill"></section>
+
+<!-- ===================== IO / SQL / PLAN / SHEET ===================== -->
+<section class="view wrap" id="v-log"></section>
+<section class="view wrap" id="v-companies"></section>
+<section class="view wrap" id="v-io"></section>
+<section class="view wrap" id="v-sql"></section>
+<section class="view wrap" id="v-plan"></section>
+<section class="view wrap" id="v-sheet"></section>
+
+<footer class="wrap">
+  <div>PLAYBOOK — companion to <b>MEMORY</b> (part 1, sequence containers)</div>
+  <div style="margin-top:7px;color:#443E6B">Built for product/fintech OAs: Google · Meta · Microsoft · Apple · Visa · Amex</div>
+</footer>
+
+
+</body>
+</html>

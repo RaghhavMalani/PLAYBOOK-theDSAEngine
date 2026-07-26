@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEMORY // an instrument for seeing data structures</title>
+<meta name="description" content="Dynamic array mechanics, cache locality, an algorithm stepper and a complexity + memory estimator.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script type="module" src="/src/main-memory.ts"></script>
+</head>
+<body>
+
+
+<!-- ======================= HERO ======================= -->
+<header class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="wrap hero-in">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 class="big" id="title"></h1>
+    <p class="tagline">Not a cheat sheet. An <b>instrument</b>. Operate the memory engine, scrub through algorithms frame by frame, and watch the complexity you keep writing on a whiteboard actually happen.</p>
+  </div>
+  <div class="scroll-cue">SCROLL</div>
+</header>
+
+<!-- ======================= MEMORY ENGINE ======================= -->
+<section class="mod wrap reveal" id="engine">
+  <div class="tag"><i></i><span>Module 01 // dynamic array</span></div>
+  <h2 class="mod">The memory engine</h2>
+  <p class="brief">Python's <code>list</code>, C++'s <code>vector</code> and Java's <code>ArrayList</code> are the <b>same machine</b>: a contiguous block, a <b>size</b>, and a <b>capacity</b>. Push until capacity runs out and it silently allocates a bigger block and copies everything across. What differs between them is the <b>growth factor</b> — and it is <b>not 2× everywhere</b>, despite what most tutorials say. Switch models below and watch the spikes rearrange.</p>
+
+  <div class="split">
+    <div class="console">
+      <div class="console-bar"><span class="led"></span><span>heap · block view</span></div>
+      <div class="console-body">
+        <div class="scrollx"><div class="track" id="engTrack" style="min-height:96px">
+          <div class="slots" id="engSlots"></div>
+        </div></div>
+        <div class="btnrow" style="margin-top:26px">
+          <button class="btn" data-eng="push">push_back(x)</button>
+          <button class="btn" data-eng="pop">pop_back()</button>
+          <button class="btn mag" data-eng="front">insert(0, x)</button>
+          <button class="btn mag" data-eng="erase">erase(mid)</button>
+          <button class="btn amb" data-eng="reserve">reserve(32)</button>
+          <button class="btn amb" data-eng="x10">push ×10</button>
+          <button class="btn" data-eng="reset">reset</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.16em">GROWTH MODEL</span>
+          <button class="btn on" data-grow="2">2× · libstdc++ / libc++</button>
+          <button class="btn" data-grow="1.5">1.5× · MSVC, Java ArrayList</button>
+          <button class="btn" data-grow="cpy">~1.125× · CPython list</button>
+        </div>
+        <div class="stats">
+          <div class="stat c1"><div class="k">size</div><div class="v" id="sSize">0</div></div>
+          <div class="stat c3"><div class="k">capacity</div><div class="v" id="sCap">0</div></div>
+          <div class="stat c2"><div class="k">reallocs</div><div class="v" id="sRe">0</div></div>
+          <div class="stat c2"><div class="k">elements copied</div><div class="v" id="sCopy">0</div></div>
+          <div class="stat c4"><div class="k">avg cost / push_back</div><div class="v" id="sAvg">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>cost per operation</span></div>
+      <div class="console-body" style="padding:18px 16px">
+        <canvas class="chart" id="costChart" height="240"></canvas>
+        <p style="font-size:12.5px;color:var(--dim);margin:14px 0 0;line-height:1.6">
+          Each bar is one <code>push_back</code>. Green bars cost <b>1</b>. Magenta spikes are reallocations that copy the entire array.
+          <br><br>Keep pushing. The spikes get <b>twice as tall</b> but <b>twice as rare</b> — so the running average flatlines near a constant. <b>That</b> is what "amortised O(1)" means, and it is why nobody worries about append.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="note"><b>Say this in an interview:</b> "Capacity grows geometrically, so the total copy work across n appends is a geometric series that sums to O(n) — amortised O(1) per append."
+  <br><br><b>Then be specific, because the factor is not 2× everywhere.</b> With growth factor g, the total elements copied over n appends is <code>≈ n / (g - 1)</code> measured at the moment the array has just grown. So doubling costs <b>≈ n</b> copies, 1.5× costs <b>≈ 2n</b>, and CPython's ~1.125× costs <b>≈ 8n</b> — eight times the memory traffic for the same result. All three are amortised O(1); only one of them is "less than 2n".
+  <br><br>Run the three models above and read the <b>elements copied</b> counter — but read it carefully, because two things move it. First, <b>where you stop matters</b>: land exactly on a full array and doubling reads 1.00n; stop just after a reallocation and it reads nearly 2n, because you have paid for headroom you have not filled yet. That spread is precisely why the honest word is "amortised" and not "constant".
+  <br><br>Second, <b>CPython's 1.125× is asymptotic, not immediate.</b> The real rule is <code>newsize + newsize/8 + 6</code>, and at small sizes that <code>+6</code> dominates — 4→8 and 8→16 are outright doublings. So the effective factor starts near 1.25 and only decays toward 1.125 as the list grows. Click a few hundred pushes and you will read about <b>5n</b>, not 8n; the 8n figure needs n in the tens of thousands. Quoting an asymptotic constant at small n is the same error as quoting O(n log n) for a 10-element sort.
+  <br><br><b>The practical half:</b> if you know the final size, pre-allocate — <code>v.reserve(n)</code> in C++, <code>new ArrayList&lt;&gt;(n)</code> in Java. <b>Python has no equivalent.</b> <code>[0]*n</code> sets the <em>size</em> to n, not the capacity — follow it with <code>append</code> and you end up with 2n elements. Pre-allocate and assign by index, or just append and accept the churn.</div>
+</section>
+
+<!-- ======================= CACHE LOCALITY ======================= -->
+<section class="mod wrap reveal" id="locality">
+  <div class="tag"><i></i><span>Module 02 // locality</span></div>
+  <h2 class="mod">The half Big-O can't see</h2>
+  <p class="brief">Two loops touch the same <b>n</b> elements. Both are O(n). One runs <b>eight times slower</b>. Big-O counts operations; hardware charges you for <b>cache misses</b>, and those depend entirely on the <em>order</em> you touch memory. The CPU never fetches one value — it fetches a <b>64-byte line</b>. Use all eight doubles in that line and seven of your reads are free. Use one and throw the rest away, and you pay full price eight times over.</p>
+
+  <div class="split">
+    <div class="console">
+      <div class="console-bar"><span class="led"></span><span>cache simulator · 64 × 8-byte elements · 64-byte lines</span></div>
+      <div class="console-body">
+        <div class="cachewrap"><div class="cachegrid" id="cacheGrid"></div></div>
+
+        <div class="legend">
+          <span><b style="background:rgba(91,255,165,.6)"></b>hit — already in cache, ~4 cycles</span>
+          <span><b style="background:var(--mag)"></b>miss — fetch 64B from DRAM, ~200 cycles</span>
+          <span><b style="background:var(--cyan)"></b>current read</span>
+        </div>
+
+        <div class="btnrow" style="margin-top:22px">
+          <button class="btn on" data-cache="row">row-major →</button>
+          <button class="btn mag" data-cache="col">column-major ↓</button>
+          <button class="btn amb" data-cache="stride">stride 2</button>
+          <button class="btn amb" data-cache="rand">random</button>
+          <button class="btn" data-cache="stop">stop</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;margin-top:18px;flex-wrap:wrap">
+          <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.16em">CACHE SIZE</span>
+          <input type="range" id="cacheCap" min="1" max="8" value="4" style="max-width:190px">
+          <span style="font-family:var(--mono);font-size:11.5px;color:var(--cyan)" id="capLbl">4 lines · 256 B</span>
+        </div>
+
+        <div class="stats">
+          <div class="stat c4"><div class="k">hits</div><div class="v" id="cHit">0</div></div>
+          <div class="stat c2"><div class="k">misses</div><div class="v" id="cMiss">0</div></div>
+          <div class="stat c3"><div class="k">bytes fetched</div><div class="v" id="cBytes">0</div></div>
+          <div class="stat c2"><div class="k">wasted traffic</div><div class="v" id="cAmp">—</div></div>
+          <div class="stat c1"><div class="k">est. cycles</div><div class="v" id="cCyc">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="console">
+      <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>array vs linked list · same O(n)</span></div>
+      <div class="console-body">
+        <div class="race">
+          <div class="rl"><span class="nm">vector — contiguous</span><span class="vv" style="color:var(--lime)" id="rA">0 cycles</span></div>
+          <div class="racebar"><i id="rAbar" style="background:linear-gradient(90deg,var(--lime),var(--cyan))"></i></div>
+          <div class="addrstrip" id="rAstrip"></div>
+        </div>
+        <div class="race">
+          <div class="rl"><span class="nm">list — pointer chasing</span><span class="vv" style="color:var(--mag)" id="rB">0 cycles</span></div>
+          <div class="racebar"><i id="rBbar" style="background:linear-gradient(90deg,var(--amb),var(--mag))"></i></div>
+          <div class="addrstrip" id="rBstrip"></div>
+        </div>
+        <div class="btnrow" style="margin-top:18px">
+          <button class="btn" id="raceGo">▶ run race</button>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--amb)" id="rRatio"></span>
+        </div>
+
+        <p style="font-size:12.5px;color:var(--dim);margin:20px 0 0;line-height:1.65">
+          Both traverse <b>64 elements</b>. The vector's addresses are consecutive, so the <b>hardware prefetcher</b> sees the pattern and pulls the next line in <em>before</em> you ask — 8 line fetches, all overlapped.
+          <br><br>The list can't be prefetched at all: you don't know where node <code>i+1</code> lives until the load of node <code>i</code> <b>completes</b>. Every hop is a <b>dependent</b> load that stalls the pipeline. 64 nodes, 64 misses, none overlapped.
+          <br><br>This is why <code>std::list</code> loses to <code>std::vector</code> even at <em>insertion in the middle</em> — the O(n) shift is a fast linear memcpy, while the O(1) splice needs an O(n) pointer-chase to reach the position.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="note"><b>Try this:</b> run <b>column-major</b> at cache size 4 — 64 misses, 8× the memory traffic for identical work. Now drag cache size to <b>8</b>. Same traversal, same code, <b>8 misses</b>. Nothing changed except that the working set started fitting. That is the entire idea behind <b>loop tiling</b>: don't reorder the algorithm, shrink the block it works on until it fits in cache.
+  <br><br><b>Say this in an interview:</b> "Both are O(n·m), but the row-major version is cache-friendly — each 64-byte line is fully consumed before eviction. Column-major touches one element per line and evicts before reuse, so it pays a miss per element. Same complexity, different constant — usually 5–10× on real hardware." Then note the caveat: <em>C and C++ are row-major, so iterate the last index fastest; Fortran and MATLAB are column-major, so the advice inverts.</em></div>
+</section>
+
+<!-- ======================= PATTERN LAB ======================= -->
+<section class="mod wrap reveal" id="lab">
+  <div class="tag"><i></i><span>Module 03 // algorithm stepper</span></div>
+  <h2 class="mod">Pattern lab</h2>
+  <p class="brief">Around <b>70% of array questions</b> are one of these five templates wearing a costume. Play them, pause them, scrub them. The code panel highlights the exact line executing on each frame, and the readout shows every live variable. Learn to recognise the <b>shape</b>, and the code becomes muscle memory.</p>
+
+  <div class="console">
+    <div class="tabs" id="tabs"></div>
+    <div class="console-body" style="padding-bottom:8px">
+      <div id="algoBlurb" style="font-size:13.5px;color:var(--dim);margin-bottom:20px;max-width:78ch"></div>
+      <div class="scrollx">
+        <div class="flags" id="labFlags"></div>
+        <div class="track" id="labTrack">
+          <div class="band" id="labBand" style="opacity:0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scrub"><i id="scrubFill"></i></div>
+    <div class="split3" style="gap:0;border-top:1px solid var(--line)">
+      <div style="border-right:1px solid var(--line)">
+        <div class="console-bar" style="border-top:none"><span>source</span></div>
+        <div class="code" id="codePane" style="padding:14px 0 18px"></div>
+      </div>
+      <div>
+        <div class="console-bar" style="border-top:none"><span>state</span></div>
+        <div class="stats" id="varPane" style="margin:0;border:none;border-bottom:1px solid var(--line)"></div>
+        <div class="narr" id="narr"><span class="step">ready</span>Press play, or step through one frame at a time.</div>
+      </div>
+    </div>
+    <div class="transport">
+      <button class="btn" id="tPlay">▶ play</button>
+      <button class="btn" id="tPrev">◀ step</button>
+      <button class="btn" id="tNext">step ▶</button>
+      <button class="btn mag" id="tReset">↺ reset</button>
+      <button class="btn amb" id="tShuffle">⚄ new data</button>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.16em;margin-left:8px">SPEED</span>
+      <input type="range" id="tSpeed" min="1" max="10" value="6">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--cyan)" id="frameNo">0 / 0</span>
+    </div>
+    <div class="transport" style="border-top:1px solid var(--line)">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.16em">YOUR DATA</span>
+      <input id="labData" placeholder="3, 1, 4, 1, 5   ·   or   abcabc" spellcheck="false"
+        style="flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line2);color:var(--txt);font-family:var(--mono);font-size:12px;padding:8px 11px;border-radius:2px">
+      <button class="btn" id="tApply">run it</button>
+    </div>
+    <div class="transport" style="border-top:none;padding-top:0">
+      <span style="font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.16em">EDGE CASES</span>
+      <button class="btn amb" data-edge="one">n = 1</button>
+      <button class="btn amb" data-edge="two">n = 2</button>
+      <button class="btn amb" data-edge="same">all equal</button>
+      <button class="btn amb" data-edge="sorted">already sorted</button>
+      <button class="btn amb" data-edge="rev">reverse sorted</button>
+      <button class="btn amb" data-edge="neg">all negative</button>
+    </div>
+  </div>
+  <div class="note"><b>Keyboard:</b> <code>space</code> play/pause · <code>\u2190</code> <code>\u2192</code> step · <code>R</code> reset · <code>1</code>\u2013<code>5</code> switch template. <b>The edge-case buttons are the point</b> \u2014 hidden tests are built from exactly these six shapes, and they are where correct-looking code breaks. Try <b>all negative</b> on Kadane and <b>n = 1</b> on two pointers.</div>
+</section>
+
+<!-- ======================= DECISION TREE ======================= -->
+<section class="mod wrap reveal" id="router">
+  <div class="tag"><i></i><span>Module 04 // recognition</span></div>
+  <h2 class="mod">Which pattern is this?</h2>
+  <p class="brief">Knowing the five templates is the easy half. The hard half — the half that decides the interview — is looking at a paragraph of prose and knowing <b>within thirty seconds</b> which shape it is. That skill is a decision tree, not a memory feat. Walk it below, or open the full map and study the signals directly.</p>
+
+  <div class="console">
+    <div class="console-bar">
+      <span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span>
+      <span id="dtMode">guided router</span>
+      <span style="flex:1"></span>
+      <button class="btn" id="dtToggle" style="padding:5px 11px;font-size:10.5px">show full map</button>
+      <button class="btn mag" id="dtBack" style="padding:5px 11px;font-size:10.5px">← back</button>
+    </div>
+    <div class="console-body" id="dtBody"></div>
+  </div>
+
+  <div class="note"><b>The meta-skill:</b> read the <b>constraints before the prose</b>. <code>n ≤ 10⁵</code> plus "contiguous" is almost always a sliding window or a prefix sum. <code>n ≤ 10⁵</code> plus "minimise the maximum" is binary search on the answer, essentially every time. <code>n ≤ 20</code> is bitmask. <code>n ≤ 500</code> is O(n³) and the interviewer has already told you they'll accept it. The constraint block is the interviewer quietly handing you the intended complexity — most candidates skim straight past it.</div>
+</section>
+
+<!-- ======================= COMPLEXITY ======================= -->
+<section class="mod wrap reveal" id="complexity">
+  <div class="tag"><i></i><span>Module 05 // scale</span></div>
+  <h2 class="mod">What n actually costs</h2>
+  <p class="brief">Reading constraints is a skill. <code>n ≤ 10⁵</code> is the interviewer telling you the answer is O(n log n) or better. Drag the slider and watch which algorithms fall off a cliff — assuming a generous <b>10⁹ operations per second</b>.</p>
+
+  <div class="split">
+    <div class="console">
+      <div class="console-bar"><span class="led"></span><span>growth curves · log scale</span></div>
+      <div class="console-body" style="padding:18px 16px"><canvas class="chart" id="growthChart" height="330"></canvas></div>
+    </div>
+    <div class="console">
+      <div class="console-bar"><span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span><span>runtime estimator</span></div>
+      <div class="console-body">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.2em">INPUT SIZE n</div>
+        <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:var(--cyan);line-height:1.2" id="nVal">1,000</div>
+        <input type="range" id="nSlide" min="1" max="90" value="30" style="width:100%;margin:14px 0 24px">
+        <div id="timeRows"></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.2em;margin:22px 0 10px;border-top:1px solid var(--line);padding-top:16px">MEMORY AT THIS n</div>
+        <div id="memRows"></div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><b>The lookup table to memorise:</b> n ≤ 10 → O(n!) fine. n ≤ 20 → O(2ⁿ) bitmask DP. n ≤ 500 → O(n³). n ≤ 5000 → O(n²). n ≤ 10⁶ → O(n log n). n ≤ 10⁸ → O(n) with tight constants only. State the target complexity <em>before</em> you start coding — it tells the interviewer you read the constraints.</div>
+</section>
+
+<!-- ======================= REFERENCE ======================= -->
+<section class="mod wrap reveal" id="ref">
+  <div class="tag"><i></i><span>Module 06 // tri-lane api</span></div>
+  <h2 class="mod">Three languages, one row</h2>
+  <p class="brief">The same operation across Python, C++ and Java, side by side with real complexities. Filter it, or collapse to a single language when you want to go deep on one.</p>
+  <div class="btnrow" style="margin-bottom:16px">
+    <input id="refQ" placeholder="filter — try: sort, erase, bound, remove"
+      style="flex:1;min-width:200px;background:var(--panel);border:1px solid var(--line2);color:var(--txt);font-family:var(--mono);font-size:12px;padding:10px 13px;border-radius:2px">
+    <button class="btn on" data-lang="py">python</button>
+    <button class="btn on" data-lang="cpp">c++</button>
+    <button class="btn on" data-lang="java">java</button>
+  </div>
+  <div class="ref" id="refTable"></div>
+</section>
+
+<!-- ======================= TRAPS ======================= -->
+<section class="mod wrap reveal" id="traps">
+  <div class="tag"><i></i><span>Module 07 // failure modes</span></div>
+  <h2 class="mod">Thirteen ways to lose the offer</h2>
+  <p class="brief">Not exotic trivia. These are the bugs that produce <b>silently wrong output</b> or a crash you can't explain while someone watches you type.</p>
+  <div class="grid3" id="trapGrid"></div>
+</section>
+
+<footer class="wrap">
+  <div>MEMORY // Part 1 of 10 — sequence containers</div>
+  <div style="margin-top:8px;color:#443E6B">Next: hash containers → monotonic stacks → heaps → graphs</div>
+</footer>
+
+
+</body>
+</html>

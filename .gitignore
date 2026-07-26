@@ -1,0 +1,16 @@
+node_modules
+dist
+.vercel
+.env
+.env.local
+
+# Pyodide is ~10 MB of WASM — download it locally, don't commit it.
+# See README: place the extracted `pyodide` folder in public/ for offline use.
+public/pyodide
+
+# vite writes these next to the config on some filesystems
+vite.config.ts.timestamp-*
+
+# local scratch: lets the content tests run without installing vitest
+tsconfig.verify.json
+tsconfig.testrun.json
