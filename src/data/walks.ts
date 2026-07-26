@@ -1,4 +1,7 @@
 import type { Pattern } from "../types";
+import { WALKS_GRAPHS } from "./walks-graphs";
+import { WALKS_DP } from "./walks-dp";
+import { WALKS_TREES } from "./walks-trees";
 
 /**
  * Worked traces and edge-case matrices, keyed by pattern name.
@@ -9,7 +12,7 @@ import type { Pattern } from "../types";
  */
 type Extra = Pick<Pattern, "edges" | "walk">;
 
-export const WALKS: Readonly<Record<string, Extra>> = {
+const CORE_WALKS: Readonly<Record<string, Extra>> = {
   "Two pointers, converging": {
     edges: [
       { input: "n = 0 or 1", effect: "<code>hi = len(a)-1</code> is −1 or 0, so the loop never runs and you fall through to the 'not found' return.", fix: "Correct by accident here, but say it out loud — the interviewer is checking whether you noticed." },
@@ -292,6 +295,14 @@ export const WALKS: Readonly<Record<string, Extra>> = {
       },
     ],
   },
+};
+
+/** Everything, merged. Adding a topic file means adding one spread here. */
+export const WALKS: Readonly<Record<string, Extra>> = {
+  ...CORE_WALKS,
+  ...WALKS_GRAPHS,
+  ...WALKS_DP,
+  ...WALKS_TREES,
 };
 
 /** Merge onto the pattern list, failing loudly if a key stops matching a name. */

@@ -1,9 +1,10 @@
 import { $, $$ } from "../lib/dom";
 
 export type ViewId =
-  | "primers" | "patterns" | "viz" | "drill" | "log" | "companies" | "io" | "sql" | "plan" | "sheet";
+  | "guide" | "primers" | "patterns" | "viz" | "drill" | "log" | "companies" | "io" | "sql" | "plan" | "sheet";
 
 const VIEWS: readonly (readonly [ViewId, string])[] = [
+  ["guide", "start here"],
   ["primers", "foundations"],
   ["patterns", "patterns"],
   ["viz", "visualiser"],
@@ -38,5 +39,5 @@ export function initRouter(): void {
     host.appendChild(b);
   }
   const fromHash = (location.hash || "").replace("#", "") as ViewId;
-  showView(VIEWS.some(([id]) => id === fromHash) ? fromHash : "primers");
+  showView(VIEWS.some(([id]) => id === fromHash) ? fromHash : "guide");
 }

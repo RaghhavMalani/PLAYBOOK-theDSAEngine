@@ -12,8 +12,8 @@ under a month away — which is why there are two rankings and they disagree.
 | Patterns | **63** (53 core + 10 hard tier) |
 | Topic primers | **13**, one per topic, each with an SVG diagram |
 | Follow-up ladder rungs | **88** across 22 patterns |
-| Edge cases documented | **112** (78 topic-level + 34 pattern-level) |
-| Worked traces | **18** across 6 patterns |
+| Edge cases documented | **220** (78 topic-level + 142 pattern-level) |
+| Worked traces | **72** across 24 patterns |
 | Anchor problems linked | **212** |
 | Companies profiled | **7** |
 | Languages per pattern | **3** (Python, C++, Java) |
@@ -24,9 +24,8 @@ regression), spaced-repetition drill, mock OA timer, company OA intelligence wit
 live research endpoint, fast-I/O reference, SQL section, four-week plan, printable
 revision sheet.
 
-**Known gaps, stated plainly:** worked traces cover 6 of 63 patterns; edge matrices
-cover 22 of 63; `noImplicitAny` is off for the ported DOM glue; there are no automated
-tests in the repo; the whole UI is desktop-first.
+**Known gaps, stated plainly:** worked traces cover 24 of 63 patterns; edge matrices
+cover 34 of 63; `noImplicitAny` is off for the ported DOM glue.
 
 ---
 
@@ -114,9 +113,10 @@ toggle in the visualiser toolbar
 
 ## Tier 2 — finish what is half-built
 
-### 4. Worked traces for the remaining 57 patterns
+### 4. Worked traces — **24 of 63 done**
 
-**Effort:** large, but incremental and parallelisable
+Complete: graphs (5), DP (5), trees (5), heaps (3), plus the original 6.
+Remaining: strings, linked lists, stacks, backtracking, greedy, bits, and the hard tier.
 
 Traces are the part that actually teaches — the state table is where *"I understand
 it"* becomes *"I can produce it"*. Six patterns have them; the schema and renderer are
@@ -125,9 +125,10 @@ already in place, so this is pure content.
 Priority order: graphs → DP → trees → the hard tier. Those are where a trace helps
 most, because the state is hardest to hold in your head.
 
-### 5. Edge matrices for the remaining 41 patterns
+### 5. Edge matrices — **34 of 63 done**
 
-**Effort:** medium · Same story: schema and renderer exist, content does not.
+Every pattern that has a worked trace also has an edge matrix, plus the 10 hard-tier
+entries. Same story for the rest: schema and renderer exist, content does not.
 
 ### 6. Date-based spaced repetition ✅ **built**
 

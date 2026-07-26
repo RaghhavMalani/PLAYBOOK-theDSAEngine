@@ -5,7 +5,8 @@ Two instruments for placement prep, sharing one design system and one typed data
 **[Playbook](./playbook.html)** — 63 patterns across 13 topics in Python, C++ and Java;
 topic primers with diagrams; a real-CPython code visualiser; an empirical complexity
 analyser; a stress tester; spaced-repetition drilling; a mistake log; company OA
-intelligence.
+intelligence. **Open it on the "start here" tab** — it routes you by situation rather
+than making you guess which of ten tools you need.
 
 **[Memory](./memory.html)** — the arrays deep dive. Drive a dynamic array by hand and
 watch amortisation happen, see why cache locality beats Big-O, step through five array
@@ -20,11 +21,11 @@ templates frame by frame, and read the complexity *and memory* estimator.
 | Patterns | **63** — 53 core + 10 hard tier |
 | Topic primers | **13**, each with an SVG diagram, op-cost table and edge cases |
 | Follow-up ladder rungs | **88** across 22 patterns |
-| Documented edge cases | **112** |
-| Worked traces | **18** across 6 patterns |
+| Documented edge cases | **220** |
+| Worked traces | **72** across 24 patterns |
 | Anchor problems | **212** LeetCode links |
 | Companies profiled | **7** |
-| Content assertions in CI | **2862** |
+| Content assertions in CI | **3504** |
 
 Every pattern carries the same five things: the **signal** that identifies it, **why**
 it works, the **trap** that costs the round, a line worth **saying out loud**, and the
@@ -44,7 +45,7 @@ npm run dev        # http://localhost:5173
 | --- | --- |
 | `npm run dev` | dev server with hot reload |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | 2862 content assertions via vitest |
+| `npm test` | 3504 content assertions via vitest |
 | `npm run build` | typecheck, then production build into `dist/` |
 | `npm run preview` | serve the built output |
 
@@ -99,7 +100,7 @@ src/
   memory/             the memory engine
   styles/             tokens.css is shared; playbook/memory are per-page
 api/oa-research.ts    Vercel edge function
-tests/                2862 content assertions
+tests/                3504 content assertions
 scripts/              python snippet syntax checker (runs in CI)
 legacy/               the original single-file builds, kept for reference
 ```
@@ -115,7 +116,7 @@ snippets parse.
 
 ## Honest notes
 
-- **Worked traces cover 6 of 63 patterns**; edge matrices cover 22 of 63. The schema and
+- **Worked traces cover 24 of 63 patterns**; edge matrices cover 34 of 63. The schema and
   renderer handle all of them — the rest is content still to write. See `ROADMAP.md`.
 - **`noImplicitAny` is off** for the ported DOM glue in `src/features` and `src/memory`.
   The data layer, types, lib and newer features are fully strict. Documented in

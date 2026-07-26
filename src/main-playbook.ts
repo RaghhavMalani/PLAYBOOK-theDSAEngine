@@ -2,6 +2,7 @@ import "./styles/tokens.css";
 import "./styles/playbook.css";
 
 import { initRouter } from "./features/router";
+import { initGuide } from "./features/guide";
 import { initPrimers } from "./features/primers";
 import { initPatterns } from "./features/patterns";
 import { initVisualiser } from "./features/visualiser";
@@ -14,6 +15,7 @@ import { $ } from "./lib/dom";
 
 function boot(): void {
   initRouter();
+  initGuide();
   initPrimers();
   initPatterns();
   initVisualiser();
