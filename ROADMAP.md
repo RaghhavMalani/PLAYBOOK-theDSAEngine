@@ -12,10 +12,11 @@ under a month away — which is why there are two rankings and they disagree.
 | Patterns | **63** (53 core + 10 hard tier) |
 | Topic primers | **13**, one per topic, each with an SVG diagram |
 | Follow-up ladder rungs | **88** across 22 patterns |
-| Edge cases documented | **220** (78 topic-level + 142 pattern-level) |
-| Worked traces | **72** across 24 patterns |
-| Anchor problems linked | **212** |
-| Companies profiled | **7** |
+| Edge cases documented | **290** (78 topic-level + 212 pattern-level) |
+| Worked traces | **109** across 38 patterns |
+| Anchor problems linked | **252** |
+| Companies profiled | **25** (10 product, 8 fintech/quant, 7 India service) |
+| Zero-to-OA ladder | **11 rungs**, 155–230 hours |
 | Languages per pattern | **3** (Python, C++, Java) |
 
 Working features: pattern browser with tier/topic filter, real-CPython visualiser
@@ -24,8 +25,9 @@ regression), spaced-repetition drill, mock OA timer, company OA intelligence wit
 live research endpoint, fast-I/O reference, SQL section, four-week plan, printable
 revision sheet.
 
-**Known gaps, stated plainly:** worked traces cover 24 of 63 patterns; edge matrices
-cover 34 of 63; `noImplicitAny` is off for the ported DOM glue.
+**Known gaps, stated plainly:** worked traces and edge matrices cover 38 of 63 patterns
+— remaining are hashing (5), arrays (7), binary search (2), greedy (2), bits (4),
+graph (2) and DP (3). `noImplicitAny` is off for the ported DOM glue.
 
 ---
 

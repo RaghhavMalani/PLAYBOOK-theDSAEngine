@@ -4,6 +4,7 @@ import { FOLLOWUPS, mergeFollowups } from "../src/data/followups";
 import { WALKS, mergeWalks } from "../src/data/walks";
 import { COMPANIES, aggregateWeights } from "../src/data/companies";
 import { STRESS_SAMPLES, stressHarness } from "../src/lib/stress";
+import { LADDER, ladderHours } from "../src/data/ladder";
 import type { TopicId } from "../src/types";
 
 /**
@@ -186,11 +187,13 @@ describe("topic primers", () => {
 
 describe("company data", () => {
   it("every company is complete and cited", () => {
-    expect(COMPANIES.length).toBeGreaterThanOrEqual(7);
+    expect(COMPANIES.length).toBeGreaterThanOrEqual(25);
     for (const c of COMPANIES) {
       expect(c.sources.length, `${c.name}: sources`).toBeGreaterThanOrEqual(1);
       for (const s of c.sources) expect(s.url, `${c.name}: url`).toMatch(/^https:\/\//);
       expect(c.archetypes.length, `${c.name}: archetypes`).toBeGreaterThanOrEqual(3);
+      expect(c.edge.length, `${c.name}: edge`).toBeGreaterThan(60);
+      expect(c.format.length, `${c.name}: format`).toBeGreaterThan(60);
       expect(c.checked, `${c.name}: checked date`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       for (const [t, w] of Object.entries(c.weights)) {
         expect(TOPIC_IDS.has(t as TopicId), `${c.name}: bad topic ${t}`).toBe(true);
@@ -205,6 +208,46 @@ describe("company data", () => {
     expect(agg.length).toBeGreaterThan(5);
     expect(agg[0]!.pct).toBe(1);
     for (let i = 1; i < agg.length; i++) expect(agg[i]!.total).toBeLessThanOrEqual(agg[i - 1]!.total);
+  });
+});
+
+describe("the zero-to-OA ladder", () => {
+  it("is contiguously numbered from 1", () => {
+    LADDER.forEach((r, i) => expect(r.n, `rung ${i}`).toBe(i + 1));
+  });
+
+  it("every rung states its gate, what it unlocks, and how you know you are done", () => {
+    for (const r of LADDER) {
+      expect(r.before.length, `${r.title}: before`).toBeGreaterThan(15);
+      expect(r.learn.length, `${r.title}: learn`).toBeGreaterThan(80);
+      expect(r.unlocks.length, `${r.title}: unlocks`).toBeGreaterThan(60);
+      expect(r.done.length, `${r.title}: done`).toBeGreaterThan(30);
+      expect(r.reaches.length, `${r.title}: reaches`).toBeGreaterThan(10);
+    }
+  });
+
+  it("every topic a rung points at is a real topic", () => {
+    for (const r of LADDER) {
+      for (const t of r.topics) expect(TOPIC_IDS.has(t as TopicId), `${r.title} -> ${t}`).toBe(true);
+    }
+  });
+
+  it("hour ranges parse and are ordered low to high", () => {
+    for (const r of LADDER) {
+      const [a, b] = r.hours.split("\u2013").map((x) => parseInt(x, 10));
+      expect(Number.isFinite(a), `${r.title}: hours`).toBe(true);
+      if (Number.isFinite(b)) expect(b).toBeGreaterThanOrEqual(a);
+    }
+    const { low, high } = ladderHours();
+    expect(low).toBeGreaterThan(100);
+    expect(high).toBeGreaterThanOrEqual(low);
+  });
+
+  it("covers every topic across the whole path", () => {
+    const covered = new Set(LADDER.flatMap((r) => r.topics));
+    // arr, bs, hash, tree, stk, graph, dp, bt, greedy, heap, bit are routed;
+    // str and ll are absorbed into earlier rungs by design
+    expect(covered.size).toBeGreaterThanOrEqual(10);
   });
 });
 

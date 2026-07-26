@@ -1,4 +1,5 @@
 import type { CompanyOA } from "../types";
+import { COMPANIES_INDIA } from "./companies-india";
 
 /**
  * Curated from public interview reports and company guides, July 2026.
@@ -12,7 +13,7 @@ import type { CompanyOA } from "../types";
  * Use the "refresh" button in the app to pull current reports via a search API
  * (see api/oa-research.ts) when you want something fresher than this snapshot.
  */
-export const COMPANIES: readonly CompanyOA[] = [
+const COMPANIES_GLOBAL: readonly CompanyOA[] = [
   {
     id: "google",
     name: "Google",
@@ -195,6 +196,9 @@ export const COMPANIES: readonly CompanyOA[] = [
     checked: "2026-07-26",
   },
 ];
+
+/** Everything, global first then the India-focused set. */
+export const COMPANIES: readonly CompanyOA[] = [...COMPANIES_GLOBAL, ...COMPANIES_INDIA];
 
 /** Aggregate topic weight across a selection of companies, for the "what to study" view. */
 export function aggregateWeights(ids: readonly string[]) {

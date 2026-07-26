@@ -1,5 +1,6 @@
 import { $, $$, esc } from "../lib/dom";
 import { COVERAGE } from "../data/index";
+import { LADDER, ladderHours } from "../data/ladder";
 import { showView } from "./router";
 import type { ViewId } from "./router";
 
@@ -60,7 +61,7 @@ const ROUTES: readonly Route[] = [
     when: "I want to know what a specific company asks",
     go: "companies",
     label: "Company OA",
-    why: "Format, duration, question count, topic weighting and reported question shapes for seven companies. Tick your targets and the study-priority panel re-weights across them.",
+    why: "Format, duration, question count, topic weighting and reported question shapes for <b>25 companies</b> — including TCS NQT, Infosys, Zoho, Flipkart, Swiggy, Razorpay and Amazon. Tick your targets and the study-priority panel re-weights across them.",
   },
   {
     when: "My correct solution is timing out",
@@ -149,10 +150,11 @@ const TOOLS: readonly Tool[] = [
   {
     id: "companies",
     name: "Company OA",
-    what: "Researched formats and topic weightings for Google, Meta, Microsoft, Apple, Visa, Amex and Goldman, with cited sources and a live-refresh endpoint.",
+    what: "Researched formats and topic weightings for <b>25 companies</b> across global product, Indian product/unicorn, fintech and the service giants — each with cited sources, a checked date and a live-refresh endpoint.",
     use: [
       "Deciding what to prioritise given your specific target list",
       "The week before an OA, to know the format you will face",
+      "Realising a TCS NQT is 60 aptitude questions with 2 coding problems attached — and preparing accordingly",
     ],
     skip: "You are treating the 0–5 weights as measured data. They are directional, synthesised from public reports — read the sources.",
   },
@@ -196,7 +198,7 @@ export function initGuide(): void {
   $("#v-guide").innerHTML = `
     <div class="tag"><i></i><span>start here // which tool, and when</span></div>
     <h2 class="mod">How to use this</h2>
-    <p class="brief">There are ten tools here. Left to itself the obvious move is to read the pattern index front to back, which feels productive and teaches almost nothing. This page routes you by <b>situation</b> instead. If you only ever use two things, make them the <b>drill</b> and the <b>mistake log</b>.</p>
+    <p class="brief">There are ten tools here. Left to itself the obvious move is to read the pattern index front to back, which feels productive and teaches almost nothing. This page routes you by <b>situation</b> instead. If you only ever use two things, make them the <b>drill</b> and the <b>mistake log</b>.<br><br><b>Starting from scratch?</b> Skip to the ladder below — eleven rungs from "I can write a for loop" to the hardest assessment you will sit.</p>
 
     <div class="console" style="margin-bottom:26px">
       <div class="console-bar"><span class="led"></span><span>find your situation</span></div>
@@ -212,7 +214,31 @@ export function initGuide(): void {
       </div>
     </div>
 
-    <h2 class="mod" style="font-size:24px">Every tool, and when not to bother</h2>
+    <h2 class="mod" style="font-size:24px">Starting from zero</h2>
+    <p class="brief">Everything else here assumes you already know what a hash map is. This does not. Eleven rungs, each with the gate you have to clear first — because the ordering is <b>not arbitrary</b>. You cannot see why a sliding window is O(n) before you can reason about amortisation, and you cannot derive a DP recurrence before recursion is automatic. Skipping produces someone who recites templates and cannot adapt them, which is precisely what a hard OA detects.
+    <br><br><b>${ladderHours().low}–${ladderHours().high} hours end to end</b> from a standing start. That is the honest number; anyone promising less is selling something.</p>
+
+    <div class="ladder-path">
+      ${LADDER.map((r) => `<div class="lrung" data-topics="${r.topics.join(",")}">
+        <div class="lnum">${r.n}</div>
+        <div class="lbody">
+          <div class="lhead">
+            <span class="lt">${esc(r.title)}</span>
+            <span class="lh">${esc(r.hours)} h</span>
+          </div>
+          <div class="lgate"><b>Before you start:</b> ${r.before}</div>
+          <div class="llearn">${r.learn}</div>
+          <div class="lunlock"><b>Why it comes here.</b> ${r.unlocks}</div>
+          <div class="ldone"><b>You are done when:</b> ${r.done}</div>
+          <div class="lreach">${esc(r.reaches)}</div>
+          ${r.topics.length ? `<button class="btn" data-lgo="${r.topics[0]}" style="margin-top:11px;padding:5px 11px;font-size:10px">patterns for this rung →</button>` : ""}
+        </div>
+      </div>`).join("")}
+    </div>
+
+    <div class="note"><b>The one rule.</b> Do not skip rung 6. Recursion is the gate to trees, graphs, backtracking and DP — four of the five topics that decide a product-company OA. Every hour spent there is repaid four times, and every hour skipped is charged four times.</div>
+
+    <h2 class="mod" style="font-size:24px;margin-top:36px">Every tool, and when not to bother</h2>
     <p class="brief">The "skip it when" line is the useful half — most of these have a mode where they waste your time.</p>
 
     <div class="grid2">
@@ -233,5 +259,13 @@ export function initGuide(): void {
 
   $$(".route, .toolcard").forEach((el) => {
     el.onclick = () => showView(el.dataset.go as ViewId);
+  });
+  $$("[data-lgo]").forEach((el) => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      showView("patterns");
+      const t = $$("#topics .topic").find((x) => x.dataset.t === el.dataset.lgo);
+      if (t) t.click();
+    };
   });
 }
