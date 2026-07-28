@@ -9,6 +9,11 @@ analyser; a stress tester; spaced-repetition drilling; a mistake log; OA intelli
 **Open it on the "start here" tab** — it routes you by situation rather
 than making you guess which of ten tools you need.
 
+**[Your coverage](./playbook.html#progress)** — the playbook reads your
+[leetcode-progress](https://github.com/RaghhavMalani/leetcode-progress) repo and tells you
+which of the 63 patterns you have **never** solved a problem for, ranked by how much each
+of the 25 companies weights it. Run `npm run sync:progress` after you solve things.
+
 **[Memory](./memory.html)** — the arrays deep dive. Drive a dynamic array by hand and
 watch amortisation happen, see why cache locality beats Big-O, step through five array
 templates frame by frame, and read the complexity *and memory* estimator.
@@ -27,7 +32,8 @@ templates frame by frame, and read the complexity *and memory* estimator.
 | Anchor problems | **252** LeetCode links |
 | Companies profiled | **25** — 10 product, 8 fintech/quant, 7 India service |
 | Zero-to-OA ladder | **11 rungs**, 155–230 honest hours |
-| Content assertions in CI | **4538** |
+| Content assertions in CI | **5568** |
+| Your solved problems read | **117** — 27 of 63 patterns met |
 
 Every pattern carries the same five things: the **signal** that identifies it, **why**
 it works, the **trap** that costs the round, a line worth **saying out loud**, and the
@@ -47,9 +53,10 @@ npm run dev        # http://localhost:5173
 | --- | --- |
 | `npm run dev` | dev server with hot reload |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | 4538 content assertions via vitest |
+| `npm test` | 5568 content assertions via vitest |
 | `npm run build` | typecheck, then production build into `dist/` |
 | `npm run preview` | serve the built output |
+| `npm run sync:progress` | re-read `../leetcode-progress` into `src/data/progress.generated.ts` |
 
 Run them one at a time — pasting a multi-line block into PowerShell executes every line.
 
@@ -102,7 +109,7 @@ src/
   memory/             the memory engine
   styles/             tokens.css is shared; playbook/memory are per-page
 api/oa-research.ts    Vercel edge function
-tests/                4538 content assertions
+tests/                5568 content assertions
 scripts/              python snippet syntax checker (runs in CI)
 legacy/               the original single-file builds, kept for reference
 ```
@@ -127,6 +134,13 @@ snippets parse.
 - **The company topic weights are directional**, synthesised from public interview
   reports. Nobody publishes measured frequencies. Read the cited sources before
   reorganising a week around one bar.
+- **Coverage is measured on anchors only.** A pattern counts as met when you have
+  solved a problem this playbook lists as an anchor for it. 81 of your 117 solved
+  problems are not anchors for anything here — real work, but not evidence about these
+  63 patterns. The view says so rather than quietly counting them.
+- **`progress.generated.ts` is committed on purpose.** Vercel only checks out this repo,
+  so the snapshot has to travel with it. Re-run the sync script and commit after solving.
+
 - **The visualiser is desktop-only.** It is hidden on phones with an explicit message
   rather than shipped broken.
 

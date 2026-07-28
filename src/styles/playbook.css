@@ -387,3 +387,31 @@ body.wb #vzCode{border-color:var(--amb);background:#000}
   .lnum{width:30px;height:30px;font-size:12px}
   .lhead .lt{font-size:16px}
 }
+
+/* ---------- your coverage (progress bridge) ---------- */
+.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:16px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+.stat b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--txt)}
+.stat span{display:block;margin-top:4px;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+.stat.bad{border-color:var(--amb);background:rgba(255,182,39,.07)}
+.stat.bad b{color:var(--amb)}
+.pbar{display:block;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.pbar>span{display:block;height:100%;background:var(--cyan);border-radius:99px}
+.gaptable{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+.gaptable th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);
+  font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.gaptable td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+.gaptable tr:last-child td{border-bottom:0}
+.gaptable tr.row-bad td{background:rgba(255,182,39,.06)}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--cyan);cursor:pointer;text-align:left}
+.linkish:hover{text-decoration:underline}
+.metgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px}
+.met{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:10px 12px;font-size:12px}
+.met .muted{display:block;margin-top:2px;font-size:10.5px}
+.metlinks{margin-top:6px;display:flex;flex-wrap:wrap;gap:5px}
+.metlinks a{font-size:10.5px;padding:1px 6px;border:1px solid var(--line);border-radius:99px;
+  color:var(--dim);text-decoration:none;font-variant-numeric:tabular-nums}
+.metlinks a:hover{border-color:var(--cyan);color:var(--cyan)}
+.callout.warn{border-color:var(--amb)}
+#gapco{background:var(--panel2);color:var(--txt);border:1px solid var(--line2);
+  border-radius:2px;padding:6px 9px;font:inherit;font-size:12.5px}
