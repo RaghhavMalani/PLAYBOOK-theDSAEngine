@@ -143,7 +143,7 @@ export function initMistakes(): void {
         </div>
 
         <div class="console">
-          <div class="console-bar"><span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span><span>where you actually lose points</span></div>
+          <div class="console-bar"><span class="led" style="background:var(--amb)"></span><span>where you actually lose points</span></div>
           <div class="console-body" style="padding:16px">
             ${ranked.length === 0
               ? `<p style="color:var(--dim);font-size:13.5px;margin:0">Nothing logged yet. Log your next three misses and this becomes the most useful panel on the site — the drill will start targeting these topics automatically.</p>`

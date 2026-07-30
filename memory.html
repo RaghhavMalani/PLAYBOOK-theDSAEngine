@@ -7,7 +7,7 @@
 <meta name="description" content="Dynamic array mechanics, cache locality, an algorithm stepper and a complexity + memory estimator.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="module" src="/src/main-memory.ts"></script>
 </head>
 <body>
@@ -63,7 +63,7 @@
     </div>
 
     <div class="console">
-      <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>cost per operation</span></div>
+      <div class="console-bar"><span class="led" style="background:var(--mag)"></span><span>cost per operation</span></div>
       <div class="console-body" style="padding:18px 16px">
         <canvas class="chart" id="costChart" height="240"></canvas>
         <p style="font-size:12.5px;color:var(--dim);margin:14px 0 0;line-height:1.6">
@@ -124,7 +124,7 @@
     </div>
 
     <div class="console">
-      <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>array vs linked list · same O(n)</span></div>
+      <div class="console-bar"><span class="led" style="background:var(--mag)"></span><span>array vs linked list · same O(n)</span></div>
       <div class="console-body">
         <div class="race">
           <div class="rl"><span class="nm">vector — contiguous</span><span class="vv" style="color:var(--lime)" id="rA">0 cycles</span></div>
@@ -220,7 +220,7 @@
 
   <div class="console">
     <div class="console-bar">
-      <span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span>
+      <span class="led" style="background:var(--amb)"></span>
       <span id="dtMode">guided router</span>
       <span style="flex:1"></span>
       <button class="btn" id="dtToggle" style="padding:5px 11px;font-size:10.5px">show full map</button>
@@ -244,7 +244,7 @@
       <div class="console-body" style="padding:18px 16px"><canvas class="chart" id="growthChart" height="330"></canvas></div>
     </div>
     <div class="console">
-      <div class="console-bar"><span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span><span>runtime estimator</span></div>
+      <div class="console-bar"><span class="led" style="background:var(--amb)"></span><span>runtime estimator</span></div>
       <div class="console-body">
         <div style="font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.2em">INPUT SIZE n</div>
         <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:var(--cyan);line-height:1.2" id="nVal">1,000</div>

@@ -68,7 +68,8 @@ export function renderProgress(): void {
   ).join("");
 
   host.innerHTML = `
-    <h2>Your coverage</h2>
+    <div class="tag"><i></i><span>your coverage // what you have actually solved</span></div>
+    <h2 class="mod">${cold} cold.<br><em>${h.patternsTouched} met.</em></h2>
     <p class="lede">
       Read from <a href="${PROGRESS_REPO}" target="_blank" rel="noopener">your leetcode-progress repo</a>
       — ${PROGRESS_COUNTS.total} problems, ${PROGRESS_COUNTS.withNotes} with written notes,

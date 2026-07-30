@@ -7,7 +7,7 @@
 <meta name="description" content="53 DSA patterns in Python, C++ and Java, a real-CPython code visualiser, an empirical complexity analyser, and company OA intelligence.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="module" src="/src/main-playbook.ts"></script>
 </head>
 <body>
@@ -75,7 +75,7 @@
     </div>
 
     <div class="console">
-      <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>execution</span>
+      <div class="console-bar"><span class="led" style="background:var(--mag)"></span><span>execution</span>
         <span style="flex:1"></span>
         <select id="vzPick" style="max-width:170px"><option value="">auto</option></select>
         <span style="font-family:var(--mono);font-size:10.5px;color:var(--cyan)" id="vzFrame">0 / 0</span>
@@ -126,7 +126,7 @@
         <div class="vzstatus" id="stStatus">Write <code>brute(a)</code> you trust, <code>fast(a)</code> you do not, and <code>gen(rng)</code> to make small random inputs.</div>
       </div>
       <div class="console">
-        <div class="console-bar"><span class="led" style="background:var(--mag);box-shadow:0 0 8px var(--mag)"></span><span>counterexample</span></div>
+        <div class="console-bar"><span class="led" style="background:var(--mag)"></span><span>counterexample</span></div>
         <div class="console-body" style="padding:18px">
           <div id="stOut"><p class="subtle" style="letter-spacing:0;text-transform:none;font-family:var(--disp);font-size:13.5px;color:var(--dim)">Nothing yet. Load an example and hit hunt — three of the five have a real bug in them.</p></div>
         </div>
@@ -160,7 +160,7 @@
         <div class="vzstatus" id="cxStatus">Write a function called <code>solve(a)</code>. It gets timed at increasing input sizes, with small sizes auto-repeated to beat the browser clock.</div>
       </div>
       <div class="console">
-        <div class="console-bar"><span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span><span>measured growth · log–log</span></div>
+        <div class="console-bar"><span class="led" style="background:var(--amb)"></span><span>measured growth · log–log</span></div>
         <div class="console-body" style="padding:16px 14px">
           <canvas id="cxChart" height="260" style="width:100%;display:block"></canvas>
           <div id="cxVerdict" style="margin-top:16px"></div>

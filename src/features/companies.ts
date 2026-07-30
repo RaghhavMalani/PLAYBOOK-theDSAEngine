@@ -108,7 +108,7 @@ export function initCompanies(): void {
       </div>
 
       <div class="console" style="margin-bottom:22px">
-        <div class="console-bar"><span class="led" style="background:var(--amb);box-shadow:0 0 8px var(--amb)"></span>
+        <div class="console-bar"><span class="led" style="background:var(--amb)"></span>
           <span>study priority across your ${targets.size} selected ${targets.size === 1 ? "company" : "companies"}</span></div>
         <div class="console-body">
           ${agg.length === 0 ? '<p class="subtle">Pick at least one company.</p>' : agg.map((r) => {
