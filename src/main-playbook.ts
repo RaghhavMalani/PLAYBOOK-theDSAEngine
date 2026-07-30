@@ -9,6 +9,7 @@ import { initVisualiser } from "./features/visualiser";
 import { initDrill } from "./features/drill";
 import { initMistakes } from "./features/mistakes";
 import { initProgress } from "./features/progress";
+import { initTracePlay } from "./features/traceplay";
 import { initCompanies } from "./features/companies";
 import { initPages } from "./features/pages";
 import { initSheet } from "./features/sheet";
@@ -25,6 +26,7 @@ function boot(): void {
   initSheet();
   initMistakes();
   initProgress();
+  initTracePlay();
   initDrill();
   const cd = $("#cd");
   if (cd) cd.textContent = "coverage beats depth";
