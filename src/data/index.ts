@@ -1,9 +1,12 @@
 import { PATTERNS as CORE, TOPICS } from "./patterns";
 import { HARD_PATTERNS } from "./patterns-hard";
+import { PATTERNS_MATH } from "./patterns-math";
+import { PATTERNS_ADV } from "./patterns-adv";
 import { mergeFollowups } from "./followups";
 import { mergeWalks } from "./walks";
 import { PRIMERS_A } from "./topics-deep-a";
 import { PRIMERS_B } from "./topics-deep-b";
+import { PRIMERS_C } from "./topics-deep-c";
 import type { Pattern, TopicPrimer, TopicId } from "../types";
 
 /**
@@ -16,9 +19,13 @@ import type { Pattern, TopicPrimer, TopicId } from "../types";
 export const PATTERNS: readonly Pattern[] = mergeWalks([
   ...mergeFollowups(CORE),
   ...HARD_PATTERNS,
+  /* patterns-math carries its own edges and walks inline rather than through the
+   * merge layers, so it is appended after mergeFollowups. */
+  ...PATTERNS_MATH,
+  ...PATTERNS_ADV,
 ]);
 
-export const PRIMERS: readonly TopicPrimer[] = [...PRIMERS_A, ...PRIMERS_B];
+export const PRIMERS: readonly TopicPrimer[] = [...PRIMERS_A, ...PRIMERS_B, ...PRIMERS_C];
 
 export { TOPICS };
 

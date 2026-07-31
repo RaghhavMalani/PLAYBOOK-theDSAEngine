@@ -23,27 +23,33 @@ export { PROGRESS_COUNTS, PROGRESS_REPO };
 export type { SolvedEntry };
 
 /**
- * The progress repo groups into 16 families; this playbook uses 13 topics. The map is
- * many-to-one and lossy in one direction that matters: "Two pointers & sliding window"
- * spans arrays AND strings, and "Math & number theory" lands in bits-and-math because
- * that is where this playbook keeps number theory. Where a family straddles two topics
- * the first entry is the primary and the rest are listed so weak evidence is not lost.
+ * The progress repo groups into 16 families; this playbook now uses 20 topics.
+ *
+ * Adding math, intv, sort and design was driven by this map: those four families had
+ * no real home and were being filed under borrowed topics ("Math & number theory" sat
+ * in bits-and-math, intervals were split across arrays and hashing), which made the
+ * adjacent-work signal noisy in both directions. Fifteen of the sixteen families now
+ * map 1:1.
+ *
+ * The one deliberate exception is "Two pointers & sliding window", which genuinely
+ * spans arrays and strings. "Brute force done right" maps to arrays because it is a
+ * teaching label rather than a technique.
  */
 export const FAMILY_TO_TOPICS: Readonly<Record<string, readonly TopicId[]>> = {
   Hashing: ["hash"],
   "Two pointers & sliding window": ["arr", "str"],
-  "Math & number theory": ["bit"],
+  "Math & number theory": ["math"],
   Greedy: ["greedy"],
   Backtracking: ["bt"],
-  "Prefix sums & intervals": ["arr", "hash"],
+  "Prefix sums & intervals": ["intv"],
   "Linked lists": ["ll"],
   "Graphs, BFS & DFS": ["graph"],
   "Dynamic programming": ["dp"],
   "Bit manipulation": ["bit"],
-  "Sorting & divide and conquer": ["arr"],
+  "Sorting & divide and conquer": ["sort"],
   "Binary search": ["bs"],
   Trees: ["tree"],
-  Design: ["hash", "ll"],
+  Design: ["design"],
   "Stacks & monotonic stacks": ["stk"],
   "Brute force done right": ["arr"],
 };

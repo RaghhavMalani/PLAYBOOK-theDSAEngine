@@ -4,7 +4,11 @@
 
 export type TopicId =
   | "hash" | "str" | "arr" | "bs" | "ll" | "stk"
-  | "tree" | "heap" | "graph" | "dp" | "bt" | "greedy" | "bit";
+  | "tree" | "heap" | "graph" | "dp" | "bt" | "greedy" | "bit"
+  /* Added after auditing which families the solved-problem repo actually falls into.
+   * "bit" was carrying number theory, and intervals were split across arr and hash;
+   * both now have a home, which also lets the coverage bridge map 1:1. */
+  | "math" | "intv" | "design" | "sort" | "grid" | "trie" | "dsu";
 
 export type Lang = "py" | "cpp" | "java";
 

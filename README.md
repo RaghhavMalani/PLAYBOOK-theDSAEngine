@@ -2,7 +2,7 @@
 
 Two instruments for placement prep, sharing one design system and one typed dataset.
 
-**[Playbook](./playbook.html)** — 63 patterns across 13 topics in Python, C++ and Java;
+**[Playbook](./playbook.html)** — 77 patterns across 20 topics in Python, C++ and Java;
 topic primers with diagrams; a real-CPython code visualiser; an empirical complexity
 analyser; a stress tester; spaced-repetition drilling; a mistake log; OA intelligence on
 25 companies; and an 11-rung ladder that starts at "I can write a for loop".
@@ -24,15 +24,15 @@ templates frame by frame, and read the complexity *and memory* estimator.
 
 | | count |
 | --- | --- |
-| Patterns | **63** — 53 core + 10 hard tier |
-| Topic primers | **13**, each with an SVG diagram, op-cost table and edge cases |
+| Patterns | **77** — 67 core + 10 hard tier |
+| Topic primers | **20**, each with an SVG diagram, op-cost table and edge cases |
 | Follow-up ladder rungs | **88** across 22 patterns |
-| Documented edge cases | **290** (78 topic-level + 212 pattern-level) |
-| Worked traces | **109** across 38 patterns |
-| Anchor problems | **252** LeetCode links |
+| Documented edge cases | **395** (113 topic-level + 282 pattern-level) |
+| Worked traces | **141** across 52 patterns |
+| Anchor problems | **306** LeetCode links |
 | Companies profiled | **25** — 10 product, 8 fintech/quant, 7 India service |
 | Zero-to-OA ladder | **11 rungs**, 155–230 honest hours |
-| Content assertions in CI | **5568** |
+| Content assertions in CI | **6634** |
 | Your solved problems read | **117** — 27 of 63 patterns met |
 
 Every pattern carries the same five things: the **signal** that identifies it, **why**
@@ -53,7 +53,7 @@ npm run dev        # http://localhost:5173
 | --- | --- |
 | `npm run dev` | dev server with hot reload |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | 5568 content assertions via vitest |
+| `npm test` | 6634 content assertions via vitest |
 | `npm run build` | typecheck, then production build into `dist/` |
 | `npm run preview` | serve the built output |
 | `npm run sync:progress` | re-read `../leetcode-progress` into `src/data/progress.generated.ts` |
@@ -109,7 +109,7 @@ src/
   memory/             the memory engine
   styles/             tokens.css is shared; playbook/memory are per-page
 api/oa-research.ts    Vercel edge function
-tests/                5568 content assertions
+tests/                6634 content assertions
 scripts/              python snippet syntax checker (runs in CI)
 legacy/               the original single-file builds, kept for reference
 ```
@@ -125,7 +125,7 @@ snippets parse.
 
 ## Honest notes
 
-- **Worked traces and edge matrices cover 38 of 63 patterns.** What is left is hashing,
+- **Worked traces and edge matrices cover 52 of 77 patterns.** What is left is hashing,
   arrays, binary search, greedy, bits, and a handful of graph and DP entries. The schema
   and renderer handle all 63 — the rest is content still to write. See `ROADMAP.md`.
 - **`noImplicitAny` is off** for the ported DOM glue in `src/features` and `src/memory`.

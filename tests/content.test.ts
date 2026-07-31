@@ -18,8 +18,8 @@ const TOPIC_IDS = new Set(TOPICS.map(([id]) => id));
 
 describe("patterns", () => {
   it("has the expected shape and size", () => {
-    expect(PATTERNS.length).toBe(63);
-    expect(COVERAGE.core).toBe(53);
+    expect(PATTERNS.length).toBe(77);
+    expect(COVERAGE.core).toBe(67);
     expect(COVERAGE.hard).toBe(10);
   });
 

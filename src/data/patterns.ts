@@ -14,6 +14,13 @@ export const TOPICS: readonly Topic[] = [
   ["bt", "Backtracking"],
   ["greedy", "Greedy"],
   ["bit", "Bits & math"],
+  ["math", "Math & number theory"],
+  ["intv", "Intervals & prefix sums"],
+  ["sort", "Sorting & divide and conquer"],
+  ["grid", "Matrix & grid"],
+  ["trie", "Tries"],
+  ["dsu", "Union-Find"],
+  ["design", "Design"],
 ] as const;
 
 export const PATTERNS: readonly Pattern[] = [
