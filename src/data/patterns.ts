@@ -21,6 +21,10 @@ export const TOPICS: readonly Topic[] = [
   ["trie", "Tries"],
   ["dsu", "Union-Find"],
   ["design", "Design"],
+  ["rec", "Recursion & complexity"],
+  ["queue", "Queues & deques"],
+  ["ood", "OOP & low-level design"],
+  ["comb", "Combinatorics & probability"],
 ] as const;
 
 export const PATTERNS: readonly Pattern[] = [
@@ -306,7 +310,7 @@ export const PATTERNS: readonly Pattern[] = [
     ],
   },
   {
-    t: "stk",
+    t: "queue",
     n: "Monotonic deque (window max)",
     tc: "O(n)",
     sc: "O(k)",

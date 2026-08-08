@@ -13,6 +13,7 @@ export const LEARNING_DATA_KEYS = [
   "groundedInterviewActive",
   "groundedInterviewHistory",
   "groundedMistakeSessions",
+  "oaEssentials",
 ] as const;
 
 export type LearningDataKey = (typeof LEARNING_DATA_KEYS)[number];
@@ -94,4 +95,3 @@ export function markLearningDataChanged(
     }));
   }
 }
-

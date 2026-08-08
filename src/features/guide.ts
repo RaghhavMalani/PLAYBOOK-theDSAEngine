@@ -11,7 +11,7 @@ import { topicName } from "../lib/topics";
 /**
  * Orientation.
  *
- * There are eleven tools here and no obvious order. Left alone, the failure mode is
+ * There are many tools here and no obvious order. Left alone, the failure mode is
  * predictable: you read the pattern index because it is the biggest, feel productive,
  * and never touch the two things that actually change outcomes (the drill and the
  * mistake log). This page routes you by situation instead of by feature name.
@@ -66,6 +66,12 @@ const ROUTES: readonly Route[] = [
     go: "companies",
     label: "Company OA",
     why: "Format, duration, question count, topic weighting and reported question shapes for <b>25 companies</b> — including TCS NQT, Infosys, Zoho, Flipkart, Swiggy, Razorpay and Amazon. Tick your targets and the study-priority panel re-weights across them.",
+  },
+  {
+    when: "My OA has aptitude, reasoning or CS-theory MCQs",
+    go: "essentials",
+    label: "OA essentials",
+    why: "A compact teach → worked example → checkpoint track for quantitative aptitude, reasoning and verbal, DBMS, operating systems and networks. It uses your saved company targets to show which sections are relevant.",
   },
   {
     when: "My correct solution is timing out",
@@ -172,6 +178,17 @@ const TOOLS: readonly Tool[] = [
       "Realising a TCS NQT is 60 aptitude questions with 2 coding problems attached — and preparing accordingly",
     ],
     skip: "You are treating the 0–5 weights as measured data. They are directional, synthesised from public reports — read the sources.",
+  },
+  {
+    id: "essentials",
+    name: "OA essentials",
+    what: "Twelve compact lessons across quantitative aptitude, reasoning and verbal, and CS theory. Every lesson has a repeatable method, a worked example, a trap and a closed-book checkpoint whose progress is backed up with the rest of your learning state.",
+    use: [
+      "TCS NQT, Infosys, Wipro, Cognizant, Capgemini or Accenture preparation",
+      "Any OA whose MCQ sections outweigh its coding questions",
+      "Refreshing DBMS, OS and computer networks before technical screening",
+    ],
+    skip: "Your confirmed assessment is coding-only. Use Company OA first if the format is uncertain.",
   },
   {
     id: "io",

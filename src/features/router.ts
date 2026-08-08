@@ -1,10 +1,11 @@
 import { $, $$ } from "../lib/dom";
 
 export type ViewId =
-  | "guide" | "arena" | "interviewer" | "lab" | "primers" | "patterns" | "viz" | "drill" | "log" | "progress" | "companies" | "io" | "sql" | "plan" | "sheet";
+  | "guide" | "arena" | "interviewer" | "lab" | "primers" | "patterns" | "viz" | "drill" | "log" | "progress" | "companies" | "essentials" | "io" | "sql" | "plan" | "sheet";
 
 const VIEWS: readonly (readonly [ViewId, string])[] = [
   ["guide", "today"],
+  ["essentials", "oa essentials"],
   ["arena", "interview arena"],
   ["interviewer", "ai interviewer"],
   ["lab", "replay lab"],

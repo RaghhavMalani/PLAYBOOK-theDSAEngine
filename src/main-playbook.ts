@@ -11,6 +11,7 @@ import { initMistakes } from "./features/mistakes";
 import { initProgress } from "./features/progress";
 import { initTracePlay } from "./features/traceplay";
 import { initCompanies } from "./features/companies";
+import { initOAEssentials } from "./features/oa-essentials";
 import { initPages } from "./features/pages";
 import { initSheet } from "./features/sheet";
 import { initArena } from "./features/arena";
@@ -30,6 +31,7 @@ function boot(): void {
   initPatterns();
   initVisualiser();
   initCompanies();
+  initOAEssentials();
   initPages();
   initSheet();
   initMistakes();

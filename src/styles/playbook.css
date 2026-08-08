@@ -98,6 +98,31 @@ table.t td code{font-size:11.5px}
 .wk p{margin:0 0 8px;font-size:13.5px;color:var(--dim)}
 footer{border-top:1px solid var(--line);padding:40px 0 60px;color:var(--dim);font-family:var(--mono);font-size:11.5px}
 
+/* ---- OA essentials ---- */
+.oa-overview{margin:24px 0 18px}
+.oa-tabs{overflow-x:auto}.oa-tabs .subtab{white-space:nowrap}.oa-tabs .subtab s{text-decoration:none;color:var(--amb);margin-left:7px}
+.oa-section-intro{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:20px;align-items:start;
+  border:1px solid var(--line);background:var(--panel);padding:18px;margin-bottom:18px}
+.oa-section-intro p{max-width:72ch;margin:7px 0 0;color:var(--dim);font-size:14px;line-height:1.7}
+.oa-companies .chips{margin-top:9px}.oa-layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:18px;align-items:start}
+.oa-lesson-nav{position:sticky;top:74px;border:1px solid var(--line);background:var(--panel)}
+.oa-lesson-link{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;text-align:left;
+  padding:12px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--dim);cursor:pointer;font-family:var(--disp)}
+.oa-lesson-link:last-child{border-bottom:0}.oa-lesson-link:hover{background:rgba(36,70,245,.04);color:var(--txt)}
+.oa-lesson-link.on{background:rgba(36,70,245,.07);color:var(--txt);box-shadow:inset 2px 0 var(--cyan)}
+.oa-lesson-link span,.oa-lesson-link i{font-family:var(--mono);font-size:9.5px;color:var(--amb);font-style:normal}
+.oa-lesson-link b{font-size:13px;line-height:1.35}.oa-lesson{border:1px solid var(--line);background:var(--panel);padding:22px;min-width:0}
+.oa-lesson-head{display:flex;justify-content:space-between;gap:18px;align-items:start}.oa-lesson-head h3{margin:6px 0 0;font-size:25px}
+.oa-goal{font-size:14px;line-height:1.7;color:var(--dim);max-width:78ch;margin:12px 0 20px}
+.oa-method{display:grid;gap:8px;margin:0;padding:0;counter-reset:oa-step;list-style:none}
+.oa-method li{counter-increment:oa-step;position:relative;padding:12px 14px 12px 46px;border:1px solid var(--line);font-size:13.5px;color:var(--dim);line-height:1.65}
+.oa-method li::before{content:counter(oa-step);position:absolute;left:14px;top:12px;font-family:var(--mono);color:var(--cyan);font-weight:700}
+.oa-worked,.oa-checkpoint{margin-top:22px;border-top:1px solid var(--line);padding-top:19px}.oa-worked h4,.oa-checkpoint h4{font-size:17px;margin:8px 0 12px;line-height:1.45}
+.oa-worked ol{margin:0;padding-left:20px;color:var(--dim);font-size:13.5px;line-height:1.7}.oa-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.oa-options .dopt{display:flex;gap:10px;align-items:baseline}.oa-options .dopt s{text-decoration:none;font-family:var(--mono);color:var(--amb);font-size:10px}
+.oa-hint{margin-top:12px;text-transform:none;letter-spacing:0}.oa-next{justify-content:flex-end;margin:16px 0 0}
+@media(max-width:850px){.oa-section-intro,.oa-layout{grid-template-columns:1fr}.oa-lesson-nav{position:static}.oa-options{grid-template-columns:1fr}}
+
 @media print{
   .top,.navtab,footer,.btn{display:none!important}
   body{background:#fff;color:#000;background-image:none}

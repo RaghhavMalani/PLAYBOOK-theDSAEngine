@@ -5,9 +5,14 @@ import { hl, bd } from "../lib/highlight";
 import { PATTERNS as PAT, TOPICS } from "../data/index";
 import { topicName } from "../lib/topics";
 import { showView } from "./router";
+import type { Lang } from "../types";
+
+export function traceButtonLabel(lang: Lang): string {
+  return lang === "py" ? "trace it →" : "trace the Python →";
+}
 
 export function initPatterns(): void {
-var curTopic="all", curLang: any = (store("lang")||"py") as any, q="", openId: any = null, curTier="all";
+var curTopic="all", curLang: Lang = (store<Lang>("lang")||"py"), q="", openId: any = null, curTier="all";
 
   function conf(){ return store("conf")||{}; }
   function setConf(name,v){ var c=conf(); if(v===null) delete c[name]; else c[name]=v; store("conf",c); }
@@ -116,7 +121,7 @@ var curTopic="all", curLang: any = (store("lang")||"py") as any, q="", openId: a
       +   "<button class='langtab"+(curLang==="cpp"?" on":"")+"' data-l='cpp'>c++</button>"
       +   "<button class='langtab"+(curLang==="java"?" on":"")+"' data-l='java'>java</button>"
       +   "<span style='flex:1'></span><button class='langtab' id='pcopy'>copy</button>"
-      +   "<button class='langtab' id='pviz'>trace it →</button></div>"
+      +   "<button class='langtab' id='pviz' title='The visualiser executes CPython through Pyodide'>"+traceButtonLabel(curLang)+"</button></div>"
       + "<pre class='src' id='psrc'>"+hl(p[curLang],curLang)+"</pre>"
       + "<div class='mini'>drill these</div><div class='lcs'>"
       + p.lc.map(function(x){return "<a class='lc' target='_blank' rel='noopener' href='https://leetcode.com/problems/"+x[1]+"/'><s>"+x[0]+"</s>"+x[2]+"</a>";}).join("")
@@ -129,7 +134,7 @@ var curTopic="all", curLang: any = (store("lang")||"py") as any, q="", openId: a
     $("#pok").onclick=function(){ setConf(p.n, conf()[p.n]==="ok"?null:"ok"); drawTopics(); drawDetail(p); };
     $("#pweak").onclick=function(){ setConf(p.n,"weak"); drawTopics(); drawDetail(p); };
     $$("#pane .langtab[data-l]").forEach(function(b){
-      b.onclick=function(){ curLang=b.dataset.l!; store("lang",curLang); drawDetail(p); };
+      b.onclick=function(){ curLang=b.dataset.l as Lang; store("lang",curLang); drawDetail(p); };
     });
     $("#pcopy").onclick=function(){
       if(navigator.clipboard) navigator.clipboard.writeText(p[curLang]);

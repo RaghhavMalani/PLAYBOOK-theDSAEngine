@@ -53,7 +53,7 @@ export function progressSyncAge(now = Date.now()): string {
 }
 
 /**
- * The progress repo groups into 16 families; this playbook now uses 20 topics.
+ * The progress repo groups into 16 families; this playbook now uses 24 topics.
  *
  * Adding math, intv, sort and design was driven by this map: those four families had
  * no real home and were being filed under borrowed topics ("Math & number theory" sat

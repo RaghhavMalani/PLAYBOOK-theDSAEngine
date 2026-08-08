@@ -46,7 +46,7 @@ export const TOPIC_TERMS: Record<TopicId, string[]> = {
   arr: ["array", "subarray", "two pointer", "sliding window", "kadane"],
   bs: ["binary search", "sorted array", "lower bound", "search space", "minimise the maximum", "minimize the maximum"],
   ll: ["linked list", "reverse list", "cycle detection", "fast and slow", "dummy node"],
-  stk: ["stack", "queue", "monotonic", "parenthes", "deque", "next greater"],
+  stk: ["stack", "parenthes", "next greater", "histogram", "expression parsing"],
   tree: ["binary tree", "bst", "traversal", "inorder", "level order", "lca"],
   heap: ["heap", "priority queue", "top k", "kth largest", "median", "merge k"],
   graph: ["graph", "bfs", "dfs", "shortest path", "dijkstra", "topological", "scc", "mst"],
@@ -61,6 +61,10 @@ export const TOPIC_TERMS: Record<TopicId, string[]> = {
   grid: ["matrix", "grid", "island", "flood fill", "maze", "spiral", "rotate image", "2d array"],
   trie: ["trie", "prefix tree", "autocomplete", "word search"],
   dsu: ["union find", "union-find", "disjoint set", "dsu", "connected components", "kruskal"],
+  rec: ["recursion", "recursive", "call stack", "divide and conquer", "memoization", "memoisation"],
+  queue: ["queue", "deque", "circular queue", "ring buffer", "level order", "sliding window maximum"],
+  ood: ["oop", "object oriented", "object-oriented", "low level design", "lld", "machine coding", "design pattern"],
+  comb: ["combinatorics", "probability", "permutation", "combination", "expected value", "inclusion exclusion", "ncr"],
 };
 
 export function countTopics(hits: ResearchHit[]): Partial<Record<TopicId, number>> {

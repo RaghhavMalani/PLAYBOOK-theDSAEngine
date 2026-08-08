@@ -8,7 +8,15 @@ standalone programs.
 import ast, io, re, sys, textwrap, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-FILES = ["src/data/patterns.ts", "src/data/patterns-hard.ts", "src/lib/stress.ts"]
+FILES = [
+    "src/data/patterns.ts",
+    "src/data/patterns-hard.ts",
+    "src/data/patterns-math.ts",
+    "src/data/patterns-adv.ts",
+    "src/data/patterns-gaps.ts",
+    "src/data/patterns-foundations.ts",
+    "src/lib/stress.ts",
+]
 
 # matches   py: "....."   with escapes, and  `....`  template literals
 DQ = re.compile(r'\n\s*py:\s*"((?:[^"\\]|\\.)*)"')

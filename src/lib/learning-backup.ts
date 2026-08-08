@@ -43,6 +43,7 @@ const ROOT_VALIDATORS: Record<LearningDataKey, (value: unknown) => boolean> = {
   groundedInterviewActive: isRecord,
   groundedInterviewHistory: Array.isArray,
   groundedMistakeSessions: isStringArray,
+  oaEssentials: isRecord,
 };
 
 function validTimestamp(value: unknown): value is string {

@@ -33,11 +33,12 @@ describe("learning-data backups", () => {
     source.setItem("pb_groundedInterviewActive", JSON.stringify({ id: "grounded-1", status: "complete" }));
     source.setItem("pb_groundedInterviewHistory", JSON.stringify([{ id: "grounded-1", status: "complete" }]));
     source.setItem("pb_groundedMistakeSessions", JSON.stringify(["grounded-1"]));
+    source.setItem("pb_oaEssentials", JSON.stringify({ dbms: { choice: 1, correct: true } }));
 
     const backup = createLearningBackup(source, new Date("2026-08-04T12:00:00.000Z"));
     const target = new MemoryStorage();
     expect(backup.version).toBe(2);
-    expect(restoreLearningBackup(JSON.stringify(backup), target)).toBe(14);
+    expect(restoreLearningBackup(JSON.stringify(backup), target)).toBe(15);
     expect(target.getItem("pb_boxes")).toBe(source.getItem("pb_boxes"));
     expect(target.getItem("pb_conf")).toBe(source.getItem("pb_conf"));
     expect(target.getItem("pb_targets")).toBe(source.getItem("pb_targets"));
@@ -52,6 +53,7 @@ describe("learning-data backups", () => {
     expect(target.getItem("pb_groundedInterviewActive")).toBe(source.getItem("pb_groundedInterviewActive"));
     expect(target.getItem("pb_groundedInterviewHistory")).toBe(source.getItem("pb_groundedInterviewHistory"));
     expect(target.getItem("pb_groundedMistakeSessions")).toBe(source.getItem("pb_groundedMistakeSessions"));
+    expect(target.getItem("pb_oaEssentials")).toBe(source.getItem("pb_oaEssentials"));
   });
 
   it("removes a category when a full backup records it as empty", () => {

@@ -107,21 +107,21 @@ export const LADDER: readonly Rung[] = [
     unlocks:
       "Trees are recursion. Backtracking is recursion with an undo. DP is recursion with a cache. Graph DFS is recursion with a visited set. This single rung is the prerequisite for four topics, which is why it comes before all of them.",
     done: "You can write a recursive function, predict its call stack depth, and convert a simple one to iteration with an explicit stack.",
-    topics: [],
+    topics: ["rec"],
     hours: "10–16",
     reaches: "Nothing directly — it is the gate to everything after.",
   },
   {
     n: 7,
-    title: "Trees, stacks and queues",
+    title: "Trees, stacks, queues and object design",
     before: "Rung 6. Recursion must be comfortable, not merely survivable.",
     learn:
-      "The four traversals and which to use when. BFS with the level snapshot. The bottom-up post-order aggregate, where a node's answer needs its children's. Monotonic stacks for next-greater problems.",
+      "The four traversals and which to use when. BFS with the level snapshot. The bottom-up post-order aggregate, where a node's answer needs its children's. Monotonic stacks for next-greater problems. Then model one small system with private state, invariant-preserving commands and composition for a changing rule.",
     unlocks:
       "BFS on a tree is BFS on a graph with the visited set removed, so this is graphs with training wheels. The bottom-up aggregate is DP on a tree, so it is also DP with training wheels.",
-    done: "You can pick pre/in/post from the problem statement without trying all three, and explain why a monotonic stack is O(n) despite the inner loop.",
-    topics: ["tree", "stk"],
-    hours: "14–20",
+    done: "You can pick pre/in/post from the problem statement without trying all three, explain why a monotonic deque is O(n), and design a small stateful class whose invalid commands leave it unchanged.",
+    topics: ["tree", "stk", "queue", "ood"],
+    hours: "18–26",
     reaches: "A solid medium bar. Most service-company OAs are now comfortably in range.",
   },
   {
@@ -152,15 +152,15 @@ export const LADDER: readonly Rung[] = [
   },
   {
     n: 10,
-    title: "Backtracking, greedy, heaps and bits",
+    title: "Backtracking, greedy, heaps, bits and counting",
     before: "Rungs 6–9. These four fill the gaps the big topics leave, which makes them worth the least until the big topics are genuinely solid.",
     learn:
-      "Backtracking as choose/recurse/un-choose with duplicate pruning. Greedy as a <em>proof</em> technique — the code is trivial, the exchange argument is the work. Bounded heaps for top-k. Bit tricks and the constraint <code>n ≤ 20</code> meaning bitmask.",
+      "Backtracking as choose/recurse/un-choose with duplicate pruning. Greedy as a <em>proof</em> technique — the code is trivial, the exchange argument is the work. Bounded heaps for top-k. Bit tricks and the constraint <code>n ≤ 20</code> meaning bitmask. Counting with permutations, combinations, inclusion-exclusion and probability states.",
     unlocks:
       "These fill the gaps. Greedy in particular is where confident wrong answers live, so learning to demand a justification before committing is worth more than the templates.",
     done: "You can state an exchange argument for a greedy choice, or recognise that you cannot and reach for DP instead.",
-    topics: ["bt", "greedy", "heap", "bit"],
-    hours: "20–28",
+    topics: ["bt", "greedy", "heap", "bit", "comb"],
+    hours: "24–34",
     reaches: "Effectively the whole medium band, plus much of the hard one.",
   },
   {

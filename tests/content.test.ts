@@ -6,6 +6,8 @@ import { COMPANIES, aggregateWeights } from "../src/data/companies";
 import { STRESS_SAMPLES, stressHarness } from "../src/lib/stress";
 import { LADDER, ladderHours } from "../src/data/ladder";
 import type { TopicId } from "../src/types";
+import { OA_ESSENTIALS } from "../src/data/oa-essentials";
+import { traceButtonLabel } from "../src/features/patterns";
 
 /**
  * These exist because every check in this repo used to be a throwaway script in a
@@ -18,8 +20,8 @@ const TOPIC_IDS = new Set(TOPICS.map(([id]) => id));
 
 describe("patterns", () => {
   it("has the expected shape and size", () => {
-    expect(PATTERNS.length).toBe(77);
-    expect(COVERAGE.core).toBe(67);
+    expect(PATTERNS.length).toBe(94);
+    expect(COVERAGE.core).toBe(84);
     expect(COVERAGE.hard).toBe(10);
   });
 
@@ -208,6 +210,36 @@ describe("company data", () => {
     expect(agg.length).toBeGreaterThan(5);
     expect(agg[0]!.pct).toBe(1);
     for (let i = 1; i < agg.length; i++) expect(agg[i]!.total).toBeLessThanOrEqual(agg[i - 1]!.total);
+  });
+});
+
+describe("non-DSA OA essentials", () => {
+  it("covers quant, reasoning and CS theory with complete checkpoint lessons", () => {
+    expect(OA_ESSENTIALS.map((section) => section.id)).toEqual(["quant", "reasoning", "cs"]);
+    expect(OA_ESSENTIALS.flatMap((section) => section.lessons).length).toBeGreaterThanOrEqual(12);
+    for (const section of OA_ESSENTIALS) {
+      expect(section.companyKeywords.length, `${section.id}: company signals`).toBeGreaterThanOrEqual(4);
+      expect(section.lessons.length, `${section.id}: lessons`).toBeGreaterThanOrEqual(4);
+      for (const lesson of section.lessons) {
+        expect(lesson.method.length, `${lesson.id}: method`).toBeGreaterThanOrEqual(3);
+        expect(lesson.worked.steps.length, `${lesson.id}: worked steps`).toBeGreaterThanOrEqual(3);
+        expect(lesson.checkpoint.choices.length, `${lesson.id}: choices`).toBeGreaterThanOrEqual(4);
+        expect(lesson.checkpoint.answer, `${lesson.id}: answer index`).toBeGreaterThanOrEqual(0);
+        expect(lesson.checkpoint.answer, `${lesson.id}: answer index`).toBeLessThan(lesson.checkpoint.choices.length);
+      }
+    }
+  });
+
+  it("labels the Python-only trace handoff honestly", () => {
+    expect(traceButtonLabel("py")).toBe("trace it →");
+    expect(traceButtonLabel("cpp")).toBe("trace the Python →");
+    expect(traceButtonLabel("java")).toBe("trace the Python →");
+  });
+
+  it("gives the deepened and newly promoted topics at least three patterns each", () => {
+    for (const topic of ["grid", "trie", "dsu", "rec", "queue", "ood", "comb"] as const) {
+      expect(PATTERNS.filter((pattern) => pattern.t === topic).length, topic).toBeGreaterThanOrEqual(3);
+    }
   });
 });
 
