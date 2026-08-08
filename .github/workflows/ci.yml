@@ -17,16 +17,10 @@ jobs:
 
       - run: npm ci
 
-      - name: Check out progress snapshot source
-        uses: actions/checkout@v4
-        with:
-          repository: RaghhavMalani/leetcode-progress
-          path: .progress-source
-
-      - name: Progress snapshot must be current
+      - name: Committed progress snapshot must be present
         run: |
-          npm run sync:progress:contract -- .progress-source/progress.json
-          git diff --exit-code -- src/data/progress.generated.ts
+          test -s src/data/progress.generated.ts
+          echo "::warning file=src/data/progress.generated.ts::PR CI validates the committed snapshot; freshness is enforced by sync-progress.yml."
 
       - name: Typecheck
         run: npm run typecheck
