@@ -1,0 +1,189 @@
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { basename, dirname, extname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(process.argv[2] ?? join(here, "../../leetcode-progress"));
+const out = resolve(process.argv[3] ?? join(here, "../src/data/replays.generated.ts"));
+
+if (!existsSync(root)) {
+  throw new Error(`replay source repository not found: ${root}`);
+}
+
+function treeBuilder(nodeW = 58, nodeH = 28, gapX = 68, gapY = 52) {
+  const tb = { nodes: [], W: nodeW, H: nodeH, gx: gapX, gy: gapY, laid: false };
+  tb.add = (parent, label, sub, frame) => {
+    const node = {
+      id: tb.nodes.length,
+      label,
+      sub: sub ?? null,
+      frame: frame ?? label,
+      p: parent ?? null,
+      ch: [],
+      dead: null,
+      d: parent == null ? 0 : tb.nodes[parent].d + 1,
+    };
+    tb.nodes.push(node);
+    if (node.p != null) tb.nodes[node.p].ch.push(node.id);
+    return node.id;
+  };
+  tb.kill = (id, step) => { tb.nodes[id].dead = step; };
+  tb.win = (id, step) => { tb.nodes[id].won = step; };
+  tb.chain = (id) => {
+    const chain = [];
+    while (id != null) {
+      chain.push(id);
+      id = tb.nodes[id].p;
+    }
+    return chain;
+  };
+  return tb;
+}
+
+function makeLv(capture) {
+  const descriptor = (k) => (...args) => ({ k, args });
+  return {
+    arr: descriptor("arr"),
+    bars: descriptor("bars"),
+    btree: descriptor("btree"),
+    frames: descriptor("frames"),
+    grid: descriptor("grid"),
+    html: descriptor("html"),
+    kv: descriptor("kv"),
+    ll: descriptor("ll"),
+    seq: descriptor("seq"),
+    tree: descriptor("tree"),
+    treeBuilder,
+    trace() {
+      const trace = { events: [], out: [] };
+      trace.step = (line, type, msg, vars, views) => {
+        trace.events.push({
+          line,
+          type,
+          msg,
+          vars: Array.isArray(vars) ? vars : vars ? [vars] : [],
+          views: views ?? [],
+          out: trace.out.slice(),
+        });
+        return trace.events.length - 1;
+      };
+      trace.save = (value) => trace.out.push(value);
+      return trace;
+    },
+    render(spec) {
+      capture.spec = spec;
+    },
+  };
+}
+
+function preferredLanguage(dir) {
+  const choices = readdirSync(dir)
+    .filter((name) => /^\d{4}-.+\.(py|cpp|java|c)$/.test(name))
+    .sort((a, b) => {
+      const rank = { ".py": 0, ".cpp": 1, ".java": 2, ".c": 3 };
+      return rank[extname(a)] - rank[extname(b)];
+    });
+  return choices[0] ?? null;
+}
+
+function extractReplay(file) {
+  const html = readFileSync(file, "utf8");
+  const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)]
+    .map((match) => match[1])
+    .filter((script) => script.includes("LV.render"));
+  if (!scripts.length) throw new Error("no inline LV.render script");
+
+  const capture = { spec: null };
+  const context = vm.createContext({
+    LV: makeLv(capture),
+    console,
+    Math,
+    JSON,
+    Map,
+    Set,
+  });
+  vm.runInContext(scripts.at(-1), context, { filename: file, timeout: 5_000 });
+  const spec = capture.spec;
+  if (!spec || typeof spec.build !== "function") throw new Error("visualization did not register a build");
+  const trace = spec.build();
+  const dir = dirname(file);
+  const sourceFile = preferredLanguage(dir);
+  const embedded = Array.isArray(spec.src) ? spec.src.join("\n") : "";
+  const code = embedded || (sourceFile ? readFileSync(join(dir, sourceFile), "utf8").trimEnd() : "");
+  const lang = sourceFile ? extname(sourceFile).slice(1) : "py";
+
+  return {
+    num: Number(spec.num),
+    dir: basename(dir),
+    name: String(spec.name ?? basename(dir)),
+    difficulty: String(spec.difficulty ?? ""),
+    pattern: String(spec.pattern ?? ""),
+    input: String(spec.input ?? ""),
+    runName: String(spec.runName ?? ""),
+    lang,
+    code,
+    complexity: {
+      time: String(spec.complexity?.time ?? "not annotated"),
+      space: String(spec.complexity?.space ?? "not annotated"),
+    },
+    pitfalls: (spec.theory?.pitfalls ?? []).map(String),
+    frames: (trace?.events ?? []).map((event) => ({
+      line: Number(event.line ?? 1),
+      type: String(event.type ?? "info"),
+      msg: String(event.msg ?? ""),
+      vars: (event.vars ?? []).map(String),
+      out: (event.out ?? []).map(String),
+    })),
+  };
+}
+
+const failures = [];
+const entries = [];
+for (const name of readdirSync(root).sort()) {
+  if (!/^\d{4}-/.test(name)) continue;
+  const file = join(root, name, "visualization.html");
+  if (!existsSync(file)) continue;
+  try {
+    entries.push(extractReplay(file));
+  } catch (error) {
+    failures.push(`${relative(root, file)}: ${error.message}`);
+  }
+}
+
+if (failures.length) {
+  throw new Error(`failed to extract ${failures.length} replay(s):\n${failures.join("\n")}`);
+}
+
+const generated = `/* GENERATED by scripts/generate-replays.mjs from the personal trace pages.
+ * Do not edit by hand. The compact records intentionally keep narration and state,
+ * but omit the old renderer-specific drawing descriptors. */
+
+export interface PersonalReplayFrame {
+  line: number;
+  type: string;
+  msg: string;
+  vars: readonly string[];
+  out: readonly string[];
+}
+
+export interface PersonalReplay {
+  num: number;
+  dir: string;
+  name: string;
+  difficulty: string;
+  pattern: string;
+  input: string;
+  runName: string;
+  lang: string;
+  code: string;
+  complexity: { time: string; space: string };
+  pitfalls: readonly string[];
+  frames: readonly PersonalReplayFrame[];
+}
+
+export const PERSONAL_REPLAYS: readonly PersonalReplay[] = ${JSON.stringify(entries)};
+`;
+
+writeFileSync(out, generated, "utf8");
+console.log(`wrote ${entries.length} personal replays to ${out}`);

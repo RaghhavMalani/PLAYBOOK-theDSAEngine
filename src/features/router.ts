@@ -1,10 +1,13 @@
 import { $, $$ } from "../lib/dom";
 
 export type ViewId =
-  | "guide" | "primers" | "patterns" | "viz" | "drill" | "log" | "progress" | "companies" | "io" | "sql" | "plan" | "sheet";
+  | "guide" | "arena" | "interviewer" | "lab" | "primers" | "patterns" | "viz" | "drill" | "log" | "progress" | "companies" | "io" | "sql" | "plan" | "sheet";
 
 const VIEWS: readonly (readonly [ViewId, string])[] = [
-  ["guide", "start here"],
+  ["guide", "today"],
+  ["arena", "interview arena"],
+  ["interviewer", "ai interviewer"],
+  ["lab", "replay lab"],
   ["primers", "foundations"],
   ["patterns", "patterns"],
   ["viz", "visualiser"],
@@ -18,7 +21,21 @@ const VIEWS: readonly (readonly [ViewId, string])[] = [
   ["sheet", "revision sheet"],
 ];
 
+let replayLabLoad: Promise<void> | null = null;
+
+function ensureViewLoaded(id: ViewId): void {
+  if (id !== "lab" || replayLabLoad) return;
+  replayLabLoad = import("./replay-lab")
+    .then(({ initReplayLab }) => initReplayLab())
+    .catch((error) => {
+      const host = document.getElementById("v-lab");
+      if (host) host.innerHTML = `<p class="note">Replay lab failed to load: ${String(error)}</p>`;
+      throw error;
+    });
+}
+
 export function showView(id: ViewId): void {
+  ensureViewLoaded(id);
   $$(".navtab").forEach((x) => x.classList.remove("on"));
   const tab = $$(".navtab").find((b) => b.dataset.v === id);
   if (tab) tab.classList.add("on");

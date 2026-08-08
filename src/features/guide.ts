@@ -1,13 +1,17 @@
-import { $, $$, esc } from "../lib/dom";
+import { $, $$, esc, store } from "../lib/dom";
 import { COVERAGE } from "../data/index";
 import { LADDER, ladderHours } from "../data/ladder";
 import { showView } from "./router";
 import type { ViewId } from "./router";
+import { readLog } from "./mistakes";
+import { queueRecallPattern } from "./drill";
+import { buildTodayMission, type MissionKind, type MissionStep, type TodayMission } from "./today";
+import { topicName } from "../lib/topics";
 
 /**
  * Orientation.
  *
- * There are ten tools here and no obvious order. Left alone, the failure mode is
+ * There are eleven tools here and no obvious order. Left alone, the failure mode is
  * predictable: you read the pattern index because it is the biggest, feel productive,
  * and never touch the two things that actually change outcomes (the drill and the
  * mistake log). This page routes you by situation instead of by feature name.
@@ -106,7 +110,7 @@ const TOOLS: readonly Tool[] = [
   {
     id: "patterns",
     name: "Pattern index",
-    what: "63 patterns, each with the signal that identifies it, why it works, the trap that costs the round, a line to say out loud, and code in Python, C++ and Java. Hard-tier entries add a derivation and a proof sketch.",
+    what: `${COVERAGE.total} patterns, each with the signal that identifies it, why it works, the trap that costs the round, a line to say out loud, and code in Python, C++ and Java. Hard-tier entries add a derivation and a proof sketch.`,
     use: [
       "You need the template and its trap in one place",
       "You want the follow-up ladder — what they ask <em>after</em> you solve it",
@@ -145,7 +149,18 @@ const TOOLS: readonly Tool[] = [
       "Five minutes before any assessment",
       "Sunday, to see which topic keeps reappearing",
     ],
-    skip: "Never. This is the one thing here you cannot regenerate if you lose it.",
+    skip: "Never. This is the one thing here you cannot regenerate unless you have downloaded a learning-data backup.",
+  },
+  {
+    id: "progress",
+    name: "Your coverage",
+    what: "Reads the committed snapshot of your solved-problem repo and shows which playbook patterns are still cold, ranked by company demand.",
+    use: [
+      "Choosing the next pattern from evidence instead of comfort",
+      "Checking whether solved volume is turning into pattern breadth",
+      "Finding the next unsolved anchor for a target company",
+    ],
+    skip: "The progress snapshot has not been refreshed after your latest solved work.",
   },
   {
     id: "companies",
@@ -194,78 +209,156 @@ const TOOLS: readonly Tool[] = [
   },
 ];
 
-export function initGuide(): void {
-  $("#v-guide").innerHTML = `
-    <div class="tag"><i></i><span>start here // which tool, and when</span></div>
-    <h2 class="mod">How to use this</h2>
-    <p class="brief">There are ten tools here. Left to itself the obvious move is to read the pattern index front to back, which feels productive and teaches almost nothing. This page routes you by <b>situation</b> instead. If you only ever use two things, make them the <b>drill</b> and the <b>mistake log</b>.<br><br><b>Starting from scratch?</b> Skip to the ladder below — eleven rungs from "I can write a for loop" to the hardest assessment you will sit.</p>
+interface TodayProgress {
+  date: string;
+  completed: MissionKind[];
+}
 
-    <div class="console" style="margin-bottom:26px">
-      <div class="console-bar"><span class="led"></span><span>find your situation</span></div>
-      <div class="console-body" style="padding:0">
-        ${ROUTES.map((r, i) => `<div class="route" data-go="${r.go}">
-          <div class="rn">${String(i + 1).padStart(2, "0")}</div>
-          <div class="rb">
-            <div class="rw">${esc(r.when)}</div>
-            <div class="ry">${r.why}</div>
-          </div>
-          <div class="rg">${esc(r.label)} →</div>
-        </div>`).join("")}
+function missionStep(step: MissionStep, done: boolean): string {
+  const action = step.kind === "recall"
+    ? `<button class="btn on" data-recall="${esc(step.pattern.n)}">${esc(step.action)} →</button>`
+    : step.href
+      ? `<a class="btn on" href="${esc(step.href)}" target="_blank" rel="noopener">${esc(step.action)} ↗</a>`
+      : "";
+  return `<article class="mission-step${done ? " is-done" : ""}" data-step="${step.id}">
+    <div class="mission-index">${step.kind === "recall" ? "01" : step.kind === "anchor" ? "02" : "03"}</div>
+    <div class="mission-main">
+      <div class="mission-kicker">${esc(step.kicker)} <span>${step.minutes} min</span></div>
+      <h3>${esc(step.title)}</h3>
+      <div class="mission-pattern">${esc(topicName(step.pattern.t))} · ${esc(step.pattern.n)}</div>
+      <p>${esc(step.reason)}</p>
+      <details class="mission-why">
+        <summary>why this won</summary>
+        <div class="mission-signals">${step.signals.map((signal) => `<span data-signal="${signal.key}">${esc(signal.label)}</span>`).join("")}</div>
+      </details>
+      <div class="mission-actions">${action}
+        <button class="btn mission-check${done ? " on" : ""}" data-complete="${step.id}" aria-pressed="${done}">${done ? "✓ complete" : "mark complete"}</button>
       </div>
     </div>
+  </article>`;
+}
 
-    <h2 class="mod" style="font-size:24px">Starting from zero</h2>
-    <p class="brief">Everything else here assumes you already know what a hash map is. This does not. Eleven rungs, each with the gate you have to clear first — because the ordering is <b>not arbitrary</b>. You cannot see why a sliding window is O(n) before you can reason about amortisation, and you cannot derive a DP recurrence before recursion is automatic. Skipping produces someone who recites templates and cannot adapt them, which is precisely what a hard OA detects.
-    <br><br><b>${ladderHours().low}–${ladderHours().high} hours end to end</b> from a standing start. That is the honest number; anyone promising less is selling something.</p>
-
-    <div class="ladder-path">
-      ${LADDER.map((r) => `<div class="lrung" data-topics="${r.topics.join(",")}">
-        <div class="lnum">${r.n}</div>
-        <div class="lbody">
-          <div class="lhead">
-            <span class="lt">${esc(r.title)}</span>
-            <span class="lh">${esc(r.hours)} h</span>
-          </div>
-          <div class="lgate"><b>Before you start:</b> ${r.before}</div>
-          <div class="llearn">${r.learn}</div>
-          <div class="lunlock"><b>Why it comes here.</b> ${r.unlocks}</div>
-          <div class="ldone"><b>You are done when:</b> ${r.done}</div>
-          <div class="lreach">${esc(r.reaches)}</div>
-          ${r.topics.length ? `<button class="btn" data-lgo="${r.topics[0]}" style="margin-top:11px;padding:5px 11px;font-size:10px">patterns for this rung →</button>` : ""}
-        </div>
-      </div>`).join("")}
+function missionMarkup(mission: TodayMission): string {
+  const saved = store<TodayProgress>("today");
+  const progress: TodayProgress = saved?.date === mission.date ? saved : { date: mission.date, completed: [] };
+  const done = new Set(progress.completed);
+  const pct = Math.round(done.size / mission.steps.length * 100);
+  return `<div class="mission-shell">
+    <div class="mission-head">
+      <div>
+        <div class="tag"><i></i><span>today mode // one loop, no menu anxiety</span></div>
+        <h2 class="mod">Today’s <em>${mission.totalMinutes}-minute mission</em></h2>
+        <p class="mission-summary">1 recall drill <i>·</i> 1 cold anchor <i>·</i> 1 timed re-solve</p>
+      </div>
+      <div class="mission-progress" aria-label="${done.size} of ${mission.steps.length} complete">
+        <strong>${done.size}<span>/3</span></strong><small>complete</small>
+      </div>
     </div>
-
-    <div class="note"><b>The one rule.</b> Do not skip rung 6. Recursion is the gate to trees, graphs, backtracking and DP — four of the five topics that decide a product-company OA. Every hour spent there is repaid four times, and every hour skipped is charged four times.</div>
-
-    <h2 class="mod" style="font-size:24px;margin-top:36px">Every tool, and when not to bother</h2>
-    <p class="brief">The "skip it when" line is the useful half — most of these have a mode where they waste your time.</p>
-
-    <div class="grid2">
-      ${TOOLS.map((t) => `<div class="card toolcard" data-go="${t.id}">
-        <h5>${esc(t.name)}</h5>
-        <p style="font-size:13px;color:var(--dim);margin:0 0 12px;line-height:1.65">${t.what}</p>
-        <div class="subtle" style="color:var(--lime)">use it when</div>
-        <ul style="margin:6px 0 12px">${t.use.map((u) => `<li>${u}</li>`).join("")}</ul>
-        <div class="subtle" style="color:var(--mag)">skip it when</div>
-        <p style="font-size:12.5px;color:var(--dim);margin:6px 0 0;line-height:1.6">${t.skip}</p>
-      </div>`).join("")}
+    <div class="mission-meter"><i style="width:${pct}%"></i></div>
+    <div class="mission-formula">
+      <span>company demand</span><b>×</b><span>coverage gap</span><b>×</b><span>time since attempt</span><b>×</b><span>mistakes</span><b>×</b><span>failed recall</span><b>×</b><span>re-solve weakness</span>
+      <em>${esc(mission.targetLabel)}</em>
     </div>
+    <div class="mission-list">${mission.steps.map((step) => missionStep(step, done.has(step.id))).join("")}</div>
+    ${done.size === mission.steps.length ? `<div class="mission-finish"><b>Mission complete.</b> Stop. Consistency beats turning one good day into a burnout day.</div>` : ""}
+  </div>`;
+}
 
-    <div class="note" style="margin-top:26px"><b>A working rhythm.</b> Two or three problems a day on a timer, with 25 minutes of genuine struggle before you look at anything. Every failure gets one line in the mistake log <em>before</em> you read the solution. Twenty minutes of drill when you have a gap. Sunday: read the log, and let the topic that keeps reappearing set the week. That is the whole method — everything else on this site exists to support it.</p>
-    </div>
-
-    <div class="note"><b>What is actually finished.</b> ${COVERAGE.total} patterns, all with signal / why / trap / say and three languages. <b>${COVERAGE.withLadder}</b> carry a follow-up ladder, <b>${COVERAGE.withEdges}</b> an edge-case matrix, <b>${COVERAGE.withWalks}</b> a worked trace. The rest is content still being written — the schema and renderer already handle it, so nothing is faked or half-shown.</div>`;
-
-  $$(".route, .toolcard").forEach((el) => {
-    el.onclick = () => showView(el.dataset.go as ViewId);
+export function initGuide(): void {
+  const mission = buildTodayMission({
+    targetCompanyIds: store<string[]>("targets") ?? ["google", "meta", "microsoft", "apple", "visa", "amex"],
+    mistakes: readLog(),
+    boxes: store<Record<string, number | { box: number; due: number }>>("boxes") ?? {},
   });
+
+  $("#v-guide").innerHTML = `
+    <div id="todayMission">${missionMarkup(mission)}</div>
+
+    <section class="today-secondary">
+      <div class="today-secondary-head">
+        <div>
+          <div class="subtle">off-mission</div>
+          <h3>Need something else?</h3>
+        </div>
+        <p>The engine is still here. Today Mode simply chooses the default.</p>
+      </div>
+
+      <details class="engine-drawer">
+        <summary>Find a tool for my situation <span>10 routes →</span></summary>
+        <div class="console drawer-body">
+          <div class="console-body" style="padding:0">
+            ${ROUTES.map((r, i) => `<div class="route" data-go="${r.go}">
+              <div class="rn">${String(i + 1).padStart(2, "0")}</div>
+              <div class="rb"><div class="rw">${esc(r.when)}</div><div class="ry">${r.why}</div></div>
+              <div class="rg">${esc(r.label)} →</div>
+            </div>`).join("")}
+          </div>
+        </div>
+      </details>
+
+      <details class="engine-drawer">
+        <summary>Starting from zero <span>${LADDER.length} rungs · ${ladderHours().low}–${ladderHours().high} hours →</span></summary>
+        <div class="drawer-content">
+          <p class="brief">Everything else assumes you know what a hash map is. This path does not. Each rung has a gate because the ordering is load-bearing: recursion unlocks trees, graphs, backtracking and DP.</p>
+          <div class="ladder-path">
+            ${LADDER.map((r) => `<div class="lrung" data-topics="${r.topics.join(",")}">
+              <div class="lnum">${r.n}</div><div class="lbody">
+                <div class="lhead"><span class="lt">${esc(r.title)}</span><span class="lh">${esc(r.hours)} h</span></div>
+                <div class="lgate"><b>Before you start:</b> ${r.before}</div><div class="llearn">${r.learn}</div>
+                <div class="lunlock"><b>Why it comes here.</b> ${r.unlocks}</div><div class="ldone"><b>You are done when:</b> ${r.done}</div>
+                <div class="lreach">${esc(r.reaches)}</div>
+                ${r.topics.length ? `<button class="btn" data-lgo="${r.topics[0]}" style="margin-top:11px;padding:5px 11px;font-size:10px">patterns for this rung →</button>` : ""}
+              </div>
+            </div>`).join("")}
+          </div>
+        </div>
+      </details>
+
+      <details class="engine-drawer">
+        <summary>Browse the complete engine <span>${TOOLS.length} tools →</span></summary>
+        <div class="drawer-content">
+          <div class="grid2">
+            ${TOOLS.map((t) => `<div class="card toolcard" data-go="${t.id}">
+              <h5>${esc(t.name)}</h5><p style="font-size:13px;color:var(--dim);margin:0 0 12px;line-height:1.65">${t.what}</p>
+              <div class="subtle" style="color:var(--lime)">use it when</div><ul style="margin:6px 0 12px">${t.use.map((u) => `<li>${u}</li>`).join("")}</ul>
+              <div class="subtle" style="color:var(--mag)">skip it when</div><p style="font-size:12.5px;color:var(--dim);margin:6px 0 0;line-height:1.6">${t.skip}</p>
+            </div>`).join("")}
+          </div>
+          <div class="note"><b>What is actually finished.</b> ${COVERAGE.total} patterns, all with signal / why / trap / say and three languages. <b>${COVERAGE.withLadder}</b> carry a follow-up ladder, <b>${COVERAGE.withEdges}</b> an edge-case matrix, and <b>${COVERAGE.withWalks}</b> a worked trace.</div>
+        </div>
+      </details>
+    </section>`;
+
+  function bindMission(): void {
+    $$("[data-recall]").forEach((button) => {
+      button.onclick = () => {
+        queueRecallPattern(button.dataset.recall!);
+        showView("drill");
+      };
+    });
+    $$("[data-complete]").forEach((button) => {
+      button.onclick = () => {
+        const saved = store<TodayProgress>("today");
+        const current: TodayProgress = saved?.date === mission.date ? saved : { date: mission.date, completed: [] };
+        const id = button.dataset.complete as MissionKind;
+        current.completed = current.completed.includes(id)
+          ? current.completed.filter((kind) => kind !== id)
+          : [...current.completed, id];
+        store("today", current);
+        $("#todayMission").innerHTML = missionMarkup(mission);
+        bindMission();
+      };
+    });
+  }
+
+  bindMission();
+  $$(".route, .toolcard").forEach((el) => { el.onclick = () => showView(el.dataset.go as ViewId); });
   $$("[data-lgo]").forEach((el) => {
     el.onclick = (e) => {
       e.stopPropagation();
       showView("patterns");
-      const t = $$("#topics .topic").find((x) => x.dataset.t === el.dataset.lgo);
-      if (t) t.click();
+      const topic = $$("#topics .topic").find((candidate) => candidate.dataset.t === el.dataset.lgo);
+      if (topic) topic.click();
     };
   });
 }

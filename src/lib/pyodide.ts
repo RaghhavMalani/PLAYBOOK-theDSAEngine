@@ -61,7 +61,7 @@ export async function getPyodide(onStatus){
 
 export function traceHarness(limit){
   return [
-"import sys, json, io as _vzio",
+"import sys, json, io as _vzio, math as _vzmath",
 "_TR = []; _LIMIT = "+limit+"; _ERR = None; _BUF = _vzio.StringIO()",
 "_STK = []; _CALLS = [0]; _MAXD = [0]",
 "def _short(x):",
@@ -71,7 +71,8 @@ export function traceHarness(limit){
 "def _safe(v):",
 "    try:",
 "        if v is None or isinstance(v, bool): return {'k':'s','d':repr(v)}",
-"        if isinstance(v, (int, float)): return {'k':'n','d':repr(v),'n':v}",
+"        if isinstance(v, (int, float)):",
+"            return {'k':'n','d':repr(v),'n':(v if not isinstance(v, float) or _vzmath.isfinite(v) else None)}",
 "        if isinstance(v, str): return {'k':'s','d':(repr(v) if len(v)<=40 else repr(v[:37])+'\\u2026')}",
 "        if isinstance(v, (list, tuple)):",
 "            L = list(v)",

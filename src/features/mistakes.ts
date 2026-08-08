@@ -1,6 +1,16 @@
 import { $, $$, esc, store } from "../lib/dom";
 import { PATTERNS, TOPICS } from "../data/index";
 import { topicName } from "../lib/topics";
+import { downloadLearningBackup, parseLearningBackup, restoreLearningBackup } from "../lib/learning-backup";
+import {
+  CLOUD_SYNC_STATUS_EVENT,
+  cloudSyncAvailable,
+  createSyncAccount,
+  currentCloudSession,
+  signInForSync,
+  signOutFromSync,
+  syncLearningState,
+} from "../lib/cloud-sync";
 import type { TopicId } from "../types";
 
 /**
@@ -33,8 +43,50 @@ export interface Mistake {
 const KEY = "mistakes";
 const DAY = 86_400_000;
 
+function cloudSyncMarkup(): string {
+  if (!cloudSyncAvailable()) {
+    return `<div class="learning-sync-panel">
+      <span class="subtle">authenticated sync</span>
+      <b>Local-first mode is active.</b>
+      <p>Backups work now. Add the deployment’s Supabase URL and anonymous key to enable account sync; local study data remains usable without it.</p>
+    </div>`;
+  }
+  const session = currentCloudSession();
+  if (session) {
+    return `<div class="learning-sync-panel">
+      <span class="subtle">authenticated sync</span>
+      <b>${esc(session.email || "signed-in account")}</b>
+      <p>Every learning category is saved locally first, then merged by its latest category revision.</p>
+      <div class="btnrow"><button class="btn on" id="cloudSyncNow">sync now</button><button class="btn" id="cloudSignOut">sign out</button></div>
+      <span class="learning-sync-status" id="cloudSyncStatus">${navigator.onLine ? "Ready to sync." : "Offline — local changes are safe."}</span>
+    </div>`;
+  }
+  return `<div class="learning-sync-panel">
+    <span class="subtle">authenticated sync</span>
+    <b>Sync across your devices.</b>
+    <p>Create an account or sign in. Your browser remains the source of immediate reads and writes.</p>
+    <div class="learning-auth-fields">
+      <input id="cloudEmail" type="email" autocomplete="email" placeholder="you@example.com" aria-label="Sync email">
+      <input id="cloudPassword" type="password" autocomplete="current-password" placeholder="password" aria-label="Sync password">
+    </div>
+    <div class="btnrow"><button class="btn on" id="cloudSignIn">sign in</button><button class="btn" id="cloudCreateAccount">create account</button></div>
+    <span class="learning-sync-status" id="cloudSyncStatus">${navigator.onLine ? "Not signed in." : "Offline — sign-in will be available after reconnection."}</span>
+  </div>`;
+}
+
 export const readLog = (): Mistake[] => (store<Mistake[]>(KEY) ?? []) as Mistake[];
 const writeLog = (m: Mistake[]) => store(KEY, m);
+
+/** Append machine-generated misses (Arena) without duplicating a completed session
+ * if the browser re-renders or restores the same state. */
+export function writeLogEntries(entries: readonly Mistake[]): number {
+  if (!entries.length) return 0;
+  const current = readLog();
+  const ids = new Set(current.map((entry) => entry.id));
+  const fresh = entries.filter((entry) => !ids.has(entry.id));
+  if (fresh.length) writeLog([...fresh, ...current]);
+  return fresh.length;
+}
 
 /** Topics you have actually got wrong, most-missed first. Drill uses this. */
 export function missedTopics(): Map<TopicId, number> {
@@ -107,6 +159,21 @@ export function initMistakes(): void {
       <div class="tag"><i></i><span>the log // your failure modes, not the average candidate's</span></div>
       <h2 class="mod">Mistake log</h2>
       <p class="brief">Record <b>the signal you missed</b> — not the problem, not the solution. <em>"Saw contiguous, reached for two pointers, it was prefix sums."</em> Recognition is what a timed round tests, so recognition failures are what is worth writing down. After three weeks this is worth more than anything else here, because it is about you.</p>
+
+      <div class="learning-data-shell" style="margin-bottom:22px">
+        <div class="learning-backup-panel">
+          <span class="subtle">portable JSON · schema v2</span>
+          <b>Keep your full learning history.</b>
+          <p>The export includes mistakes, Leitner boxes, attempts, confidence, target companies, interview dates, daily plans and whiteboard outcomes.</p>
+          <div class="btnrow">
+            <button class="btn on" id="learningBackup">download JSON</button>
+            <button class="btn" id="learningRestore">restore JSON</button>
+            <input id="learningBackupFile" type="file" accept="application/json,.json" hidden>
+          </div>
+          <span class="learning-sync-status" id="learningBackupStatus"></span>
+        </div>
+        ${cloudSyncMarkup()}
+      </div>
 
       <div class="vzgrid" style="align-items:start">
         <div class="console">
@@ -193,6 +260,87 @@ export function initMistakes(): void {
 
       <div class="note"><b>How to use it.</b> Log the miss <em>before</em> you read the solution — after you read it, you will write down the solution instead of the recognition failure, and the recognition failure is the whole point. Then read this page for five minutes before every assessment.</div>`;
 
+    $("#learningBackup").onclick = () => {
+      try {
+        downloadLearningBackup();
+        $("#learningBackupStatus").textContent = "Backup downloaded outside browser storage.";
+      } catch (err) {
+        $("#learningBackupStatus").textContent = `Backup failed: ${String(err)}`;
+      }
+    };
+    $("#learningRestore").onclick = () => $("#learningBackupFile").click();
+    ($("#learningBackupFile") as HTMLInputElement).onchange = async (event) => {
+      const input = event.currentTarget as HTMLInputElement;
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const backup = parseLearningBackup(text);
+        const date = backup.exportedAt === "unknown" ? "an unknown date" : backup.exportedAt.slice(0, 10);
+        if (!confirm(`Restore the learning-data backup from ${date}? This replaces the current learning history categories.`)) return;
+        const restored = restoreLearningBackup(backup);
+        alert(`Restored ${restored} learning-data categories. The playbook will reload now.`);
+        window.location.reload();
+      } catch (err) {
+        $("#learningBackupStatus").textContent = `Restore failed: ${err instanceof Error ? err.message : String(err)}`;
+      } finally {
+        input.value = "";
+      }
+    };
+
+    const syncStatus = (message: string): void => {
+      const target = document.getElementById("cloudSyncStatus");
+      if (target) target.textContent = message;
+    };
+    const syncNow = async (): Promise<void> => {
+      syncStatus("Syncing local and cloud revisions…");
+      try {
+        const result = await syncLearningState();
+        syncStatus(result.firstUpload
+          ? "First upload complete. This device is now linked."
+          : `Synced · ${result.pulled} pulled · ${result.pushed} pushed.`);
+      } catch (err) {
+        syncStatus(err instanceof Error ? err.message : String(err));
+      }
+    };
+    const credentials = (): { email: string; password: string } | null => {
+      const email = (document.getElementById("cloudEmail") as HTMLInputElement | null)?.value.trim() ?? "";
+      const password = (document.getElementById("cloudPassword") as HTMLInputElement | null)?.value ?? "";
+      if (!email || !password) {
+        syncStatus("Enter both email and password.");
+        return null;
+      }
+      return { email, password };
+    };
+    const authenticate = async (create: boolean): Promise<void> => {
+      const values = credentials();
+      if (!values) return;
+      syncStatus(create ? "Creating account…" : "Signing in…");
+      try {
+        const result = create
+          ? await createSyncAccount(values.email, values.password)
+          : await signInForSync(values.email, values.password);
+        if (!result.session) {
+          syncStatus(result.message);
+          return;
+        }
+        render();
+        await syncNow();
+      } catch (err) {
+        syncStatus(err instanceof Error ? err.message : String(err));
+      }
+    };
+    const syncButton = document.getElementById("cloudSyncNow");
+    if (syncButton) syncButton.onclick = () => { void syncNow(); };
+    const signIn = document.getElementById("cloudSignIn");
+    if (signIn) signIn.onclick = () => { void authenticate(false); };
+    const createAccount = document.getElementById("cloudCreateAccount");
+    if (createAccount) createAccount.onclick = () => { void authenticate(true); };
+    const signOut = document.getElementById("cloudSignOut");
+    if (signOut) signOut.onclick = () => {
+      void signOutFromSync().finally(render);
+    };
+
     $("#mkAdd").onclick = add;
     ($("#mkSignal") as HTMLTextAreaElement).addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); add(); }
@@ -224,5 +372,13 @@ export function initMistakes(): void {
     };
   }
 
+  window.addEventListener(CLOUD_SYNC_STATUS_EVENT, (event) => {
+    const detail = (event as CustomEvent<{ state?: string; message?: string; pulled?: number; pushed?: number }>).detail;
+    const target = document.getElementById("cloudSyncStatus");
+    if (!target) return;
+    if (detail.state === "syncing") target.textContent = "Syncing local and cloud revisions…";
+    if (detail.state === "synced") target.textContent = `Synced · ${detail.pulled ?? 0} pulled · ${detail.pushed ?? 0} pushed.`;
+    if (detail.state === "error") target.textContent = detail.message ?? "Cloud sync failed.";
+  });
   render();
 }

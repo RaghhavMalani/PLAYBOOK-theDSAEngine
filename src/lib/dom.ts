@@ -25,14 +25,19 @@ export const RM: boolean =
   !!window.matchMedia &&
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+export const STORE_PREFIX = "pb_";
+
+import { isLearningDataKey, markLearningDataChanged } from "./learning-state";
+
 /** localStorage with a namespace and a swallowed failure path (file:// and
  *  private mode both throw). Reading returns null rather than exploding. */
 export function store<T = unknown>(key: string): T | null;
 export function store<T = unknown>(key: string, value: T): void;
 export function store<T = unknown>(key: string, value?: T): T | null | void {
   try {
-    if (value === undefined) return JSON.parse(localStorage.getItem("pb_" + key) ?? "null") as T | null;
-    localStorage.setItem("pb_" + key, JSON.stringify(value));
+    if (value === undefined) return JSON.parse(localStorage.getItem(STORE_PREFIX + key) ?? "null") as T | null;
+    localStorage.setItem(STORE_PREFIX + key, JSON.stringify(value));
+    if (isLearningDataKey(key)) markLearningDataChanged(key, localStorage, STORE_PREFIX);
   } catch {
     return null;
   }

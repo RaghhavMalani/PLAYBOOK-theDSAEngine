@@ -1,0 +1,26 @@
+{
+  "id": "./playbook.html",
+  "name": "DSA Engine Playbook",
+  "short_name": "DSA Engine",
+  "description": "Local-first DSA pattern drills, primers, interview practice and worked traces.",
+  "start_url": "./playbook.html#guide",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f0e7",
+  "theme_color": "#15152b",
+  "icons": [
+    {
+      "src": "./icons/dsa-engine.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Today", "url": "./playbook.html#guide" },
+    { "name": "Drill", "url": "./playbook.html#drill" },
+    { "name": "Patterns", "url": "./playbook.html#patterns" },
+    { "name": "Replay lab", "url": "./playbook.html#lab" }
+  ]
+}
+

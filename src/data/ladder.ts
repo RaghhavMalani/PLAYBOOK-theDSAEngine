@@ -3,7 +3,7 @@
  *
  * Everything else here assumes you already know what a hash map is. This does not.
  * It is an ordered path with explicit prerequisites, so someone starting from "I can
- * write a for loop" has a route rather than a pile of 63 patterns and no entry point.
+ * write a for loop" has a route rather than a pile of patterns and no entry point.
  *
  * The ordering is not arbitrary. Each rung exists because the next one is unlearnable
  * without it — you cannot understand why a sliding window is O(n) until you can
