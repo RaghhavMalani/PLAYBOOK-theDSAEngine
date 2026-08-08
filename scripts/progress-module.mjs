@@ -100,8 +100,8 @@ export function renderProgressModule(untrustedContract) {
  * ${entries.length} solved problems; ${counts.withNotes} carry notes and
  * ${counts.withViz} have a traced visualisation.
  *
- * Live updates arrive through repository_dispatch. scripts/sync-progress.mjs is the
- * read-only, sibling-repository fallback for offline use.
+ * Live updates arrive through repository_dispatch. npm run sync:progress imports the
+ * sibling repository's committed contract for offline use.
  */
 
 export interface ReSolveEvent {

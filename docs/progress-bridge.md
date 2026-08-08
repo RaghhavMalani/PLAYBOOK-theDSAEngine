@@ -55,10 +55,9 @@ With both clones next to each other, run this from Playbook:
 npm run sync:progress -- ../leetcode-progress
 ```
 
-`scripts/sync-progress.mjs` asks the source repository's generator for an in-memory
-contract and writes only Playbook's generated TypeScript snapshot. If local git history
-cannot be read, it falls back to the source repository's committed `progress.json`. To
-replay the exact committed live boundary explicitly, use:
+`npm run sync:progress` imports the source repository's committed `progress.json` and
+rebuilds personal replays from the sibling clone. It never rescans solution directories
+into a second progress snapshot. To import only the exact committed boundary, use:
 
 ```bash
 npm run sync:progress:contract -- ../leetcode-progress/progress.json

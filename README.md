@@ -13,7 +13,7 @@ than making you guess which of eleven tools you need.
 [leetcode-progress](https://github.com/RaghhavMalani/leetcode-progress) repo and tells you
 which of the 77 patterns you have **never** solved a problem for, ranked by how much each
 of the 25 companies weights it. Its versioned `progress.json` contract publishes changes
-automatically; `npm run sync:progress` remains the sibling-clone fallback for offline use.
+automatically; `npm run sync:progress` imports the sibling clone's committed contract for offline use.
 
 **[Replay lab](./playbook.html#lab)** — connects every saved personal trace to its exact
 curriculum pattern when available (or an explicitly labelled family analogue). Step through the
@@ -70,7 +70,7 @@ npm run dev        # http://localhost:5173
 | `npm test` | Vitest content, classifier, backup and coverage tests |
 | `npm run build` | typecheck, then production build into `dist/` |
 | `npm run preview` | serve the built output |
-| `npm run sync:progress` | re-read `../leetcode-progress` into `src/data/progress.generated.ts` |
+| `npm run sync:progress` | import `../leetcode-progress/progress.json` and rebuild personal replays |
 | `npm run sync:progress:contract -- path/to/progress.json` | import an exact live contract snapshot |
 | `npm run sync:replays -- path/to/leetcode-progress` | rebuild the personal replay snapshot |
 
