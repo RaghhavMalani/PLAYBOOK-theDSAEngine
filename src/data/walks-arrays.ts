@@ -251,6 +251,82 @@ export const WALKS_ARRAYS: Readonly<Record<string, Extra>> = {
     ],
   },
 
+  "Segment tree": {
+    edges: [
+      {
+        input: "Building with <code>4n</code> vs <code>2n</code> nodes",
+        effect: "The recursive form can address indices past <code>2n</code> when n is not a power of two, so a <code>2n</code> array overflows.",
+        fix: "Recursive: allocate <code>4n</code>. Iterative bottom-up: <code>2n</code> is exactly enough. Pick one form and size it accordingly \u2014 mixing the two is how the out-of-bounds appears.",
+      },
+      {
+        input: "Range given inclusive but queried half-open",
+        effect: "Off by one at the right edge, silently dropping the last element of every query.",
+        fix: "Fix the convention once, write it in a comment, and convert at the boundary. The iterative form below is half-open <code>[l, r)</code>.",
+      },
+      {
+        input: "Range <em>update</em> without lazy propagation",
+        effect: "Updating each element individually is O(n log n) per range \u2014 worse than a plain array.",
+        fix: "Lazy propagation: mark a node as owing an update and push it down only when a query descends through it.",
+      },
+      {
+        input: "A non-associative combine function",
+        effect: "The tree returns wrong answers because it combines partial results in an order you did not intend.",
+        fix: "Sum, min, max and gcd are associative and safe. 'Average' is not \u2014 store sum and count separately and divide at the end.",
+      },
+      {
+        input: "n = 0",
+        effect: "The build loop reads <code>t[1]</code> from an empty tree.",
+        fix: "Guard the empty case. Segment trees are one of the few structures where the empty input crashes rather than degrading.",
+      },
+    ],
+    walk: [
+      {
+        title: "Simple \u2014 the tree behind [1, 3, 5, 7, 9, 11]",
+        input: "n = 6, iterative bottom-up form: leaves live at t[n..2n)",
+        cols: ["index", "holds", "covers"],
+        rows: [
+          ["t[6..11]", "1, 3, 5, 7, 9, 11", "the leaves, in order"],
+          ["t[3]", "<b>4</b>", "1 + 3"],
+          ["t[4]", "<b>12</b>", "5 + 7"],
+          ["t[5]", "<b>20</b>", "9 + 11"],
+          ["t[2]", "<b>32</b>", "12 + 20"],
+          ["t[1]", "<b>36</b>", "4 + 32 = whole array"],
+        ],
+        lesson:
+          "Twelve nodes for six elements \u2014 exactly <code>2n</code>. Every internal node is the sum of its two children, so the root is the total. Note the tree is not perfectly balanced when n is not a power of two, and the iterative form does not care.",
+      },
+      {
+        title: "Harder \u2014 a query climbs from both ends",
+        input: "sum of a[1..3] = 3 + 5 + 7, queried as [1, 4)",
+        cols: ["step", "l", "r", "action", "running sum"],
+        rows: [
+          ["start", "7", "10", "l and r shifted by n = 6", "0"],
+          ["l is odd", "7", "10", "take t[7] = <b>3</b>, l++", "3"],
+          ["r is even", "8", "10", "no take from the right", "3"],
+          ["halve", "4", "5", "climb one level", "3"],
+          ["r is odd", "4", "5", "r--, take t[4] = <b>12</b>", "<b>15</b>"],
+          ["l == r", "2", "2", "stop", "15 \u2713"],
+        ],
+        lesson:
+          "Answer 15, verified. Only <b>two</b> nodes were read for a three-element range \u2014 t[7] is the single leaf 3, and t[4] covers 5 and 7 in one node. That is the whole value proposition: the tree lets one read stand in for a whole block, so a query touches O(log n) nodes instead of the range length.",
+      },
+      {
+        title: "Hardest \u2014 a point update repairs one path only",
+        input: "set a[2] = 10 (was 5), then re-query [1, 4)",
+        cols: ["node", "recomputed as", "new value"],
+        rows: [
+          ["t[8] (leaf)", "assigned directly", "10"],
+          ["t[4]", "t[8] + t[9] = 10 + 7", "<b>17</b>"],
+          ["t[2]", "t[4] + t[5] = 17 + 20", "<b>37</b>"],
+          ["t[1]", "t[2] + t[3] = 37 + 4", "<b>41</b>"],
+          ["re-query [1,4)", "3 + 17", "<b>20</b> \u2713"],
+        ],
+        lesson:
+          "Three ancestors repaired, nothing else touched \u2014 that is the O(log n). Compare with a prefix-sum array, where changing one element invalidates every prefix after it and costs O(n). This single difference is the reason the structure exists, and it is the answer to 'why not just use prefix sums'.",
+      },
+    ],
+  },
+
   "Fenwick tree (BIT)": {
     edges: [
       {

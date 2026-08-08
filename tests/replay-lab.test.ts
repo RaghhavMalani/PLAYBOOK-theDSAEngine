@@ -19,7 +19,7 @@ describe("personal replay laboratory", () => {
 
   it("imports every traced personal solution and every curriculum trace", () => {
     expect(PERSONAL_REPLAYS).toHaveLength(112);
-    expect(countCurriculumTraces(PATTERNS)).toBe(178);
+    expect(countCurriculumTraces(PATTERNS)).toBe(181);
     expect(bridges).toHaveLength(PERSONAL_REPLAYS.length);
     expect(bridges.filter((bridge) => bridge.exact && bridge.walk).length).toBeGreaterThan(20);
   });

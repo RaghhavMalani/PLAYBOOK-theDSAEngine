@@ -1,6 +1,7 @@
 import "./styles/tokens.css";
 import "./styles/playbook.css";
 
+import { migrateLearningKeys } from "./lib/migrations";
 import { initRouter } from "./features/router";
 import { initGuide } from "./features/guide";
 import { initPrimers } from "./features/primers";
@@ -21,6 +22,7 @@ import { initCloudSync } from "./lib/cloud-sync";
 import { initPwa } from "./lib/pwa";
 
 function boot(): void {
+  migrateLearningKeys();   // before any view reads conf/boxes
   initPwa();
   initCloudSync();
   initRouter();
