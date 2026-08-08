@@ -4,6 +4,7 @@ import { PATTERNS_MATH } from "./patterns-math";
 import { PATTERNS_ADV } from "./patterns-adv";
 import { PATTERNS_GAPS } from "./patterns-gaps";
 import { PATTERNS_FOUNDATIONS } from "./patterns-foundations";
+import { PATTERNS_ARRAYS } from "./patterns-arrays";
 import { mergeFollowups } from "./followups";
 import { mergeWalks } from "./walks";
 import { PRIMERS_A } from "./topics-deep-a";
@@ -28,6 +29,7 @@ export const PATTERNS: readonly Pattern[] = mergeWalks([
   ...PATTERNS_ADV,
   ...PATTERNS_GAPS,
   ...PATTERNS_FOUNDATIONS,
+  ...PATTERNS_ARRAYS,
 ]);
 
 export const PRIMERS: readonly TopicPrimer[] = [...PRIMERS_A, ...PRIMERS_B, ...PRIMERS_C, ...PRIMERS_FOUNDATIONS];

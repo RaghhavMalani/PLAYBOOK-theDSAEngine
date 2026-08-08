@@ -3,6 +3,7 @@ import { WALKS_GRAPHS } from "./walks-graphs";
 import { WALKS_DP } from "./walks-dp";
 import { WALKS_TREES } from "./walks-trees";
 import { WALKS_STRUCTURES } from "./walks-structures";
+import { WALKS_ARRAYS } from "./walks-arrays";
 
 /**
  * Worked traces and edge-case matrices, keyed by pattern name.
@@ -305,6 +306,7 @@ export const WALKS: Readonly<Record<string, Extra>> = {
   ...WALKS_DP,
   ...WALKS_TREES,
   ...WALKS_STRUCTURES,
+  ...WALKS_ARRAYS,
 };
 
 /** Merge onto the pattern list, failing loudly if a key stops matching a name. */
