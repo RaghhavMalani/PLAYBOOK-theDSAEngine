@@ -16,14 +16,44 @@
  */
 
 import type { Pattern, TopicId, CompanyOA } from "../types";
+import {
+  masteryForPattern,
+  readAttemptHistory,
+  stageIndex,
+  type MasteryEvidence,
+  type MasteryStage,
+} from "../lib/mastery";
 import { PATTERNS } from "./index";
-import { SOLVED, PROGRESS_COUNTS, PROGRESS_REPO, type SolvedEntry } from "./progress.generated";
+import {
+  SOLVED,
+  PROGRESS_COUNTS,
+  PROGRESS_REPO,
+  PROGRESS_SYNC,
+  type SolvedEntry,
+} from "./progress.generated";
 
-export { PROGRESS_COUNTS, PROGRESS_REPO };
+export { PROGRESS_COUNTS, PROGRESS_REPO, PROGRESS_SYNC };
 export type { SolvedEntry };
 
+/** Human age for the generated-at timestamp; evaluated in the browser on every render. */
+export function progressSyncAge(now = Date.now()): string {
+  const elapsed = Math.max(0, now - Date.parse(PROGRESS_SYNC.generatedAt));
+  if (elapsed < 60_000) return "just now";
+  const minutes = Math.floor(elapsed / 60_000);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return new Date(PROGRESS_SYNC.generatedAt).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 /**
- * The progress repo groups into 16 families; this playbook now uses 20 topics.
+ * The progress repo groups into 16 families; this playbook now uses 24 topics.
  *
  * Adding math, intv, sort and design was driven by this map: those four families had
  * no real home and were being filed under borrowed topics ("Math & number theory" sat
@@ -71,13 +101,18 @@ export interface PatternCoverage {
   openAnchors: readonly (readonly [number, string, string])[];
   /** solved problems in a family that maps to this pattern's topic — WEAK evidence */
   adjacent: SolvedEntry[];
-  /** 0 when no anchor is solved */
+  /** Mastery progress on the six-stage ladder, kept as `ratio` for recommendation consumers. */
   ratio: number;
-  /** true only on strong evidence */
+  /** Repository-anchor coverage, separate from mastery. */
+  anchorRatio: number;
+  stage: MasteryStage;
+  mastery: MasteryEvidence;
+  /** Compatibility alias: the pattern has at least been exposed. */
   touched: boolean;
 }
 
 export function patternCoverage(): PatternCoverage[] {
+  const attemptHistory = readAttemptHistory();
   const byTopic = new Map<TopicId, SolvedEntry[]>();
   for (const e of SOLVED) {
     for (const t of FAMILY_TO_TOPICS[e.family] ?? []) {
@@ -98,13 +133,20 @@ export function patternCoverage(): PatternCoverage[] {
     }
     const anchorNums = new Set(anchors.map((a) => a[0]));
     const adjacent = (byTopic.get(pattern.t) ?? []).filter((e) => !anchorNums.has(e.num));
+    const repoFirstSolvedAt = solvedAnchors
+      .map((entry) => entry.firstSolvedAt)
+      .sort((a, b) => Date.parse(a) - Date.parse(b))[0] ?? null;
+    const mastery = masteryForPattern(pattern.n, repoFirstSolvedAt, attemptHistory);
     return {
       pattern,
       solvedAnchors,
       openAnchors,
       adjacent,
-      ratio: anchors.length ? solvedAnchors.length / anchors.length : 0,
-      touched: solvedAnchors.length > 0,
+      ratio: mastery.stageIndex / 5,
+      anchorRatio: anchors.length ? solvedAnchors.length / anchors.length : 0,
+      stage: mastery.stage,
+      mastery,
+      touched: mastery.stage !== "unseen",
     };
   });
 }
@@ -113,6 +155,10 @@ export interface TopicCoverage {
   topic: TopicId;
   patterns: number;
   touched: number;
+  independent: number;
+  retained: number;
+  interviewReady: number;
+  mastery: number;
   solvedHere: number;
   /** solved problems whose family maps here but which are not anchors */
   adjacentOnly: number;
@@ -123,9 +169,16 @@ export function topicCoverage(): TopicCoverage[] {
   const out = new Map<TopicId, TopicCoverage>();
   for (const c of cov) {
     const t = c.pattern.t;
-    const row = out.get(t) ?? { topic: t, patterns: 0, touched: 0, solvedHere: 0, adjacentOnly: 0 };
+    const row = out.get(t) ?? {
+      topic: t, patterns: 0, touched: 0, independent: 0, retained: 0,
+      interviewReady: 0, mastery: 0, solvedHere: 0, adjacentOnly: 0,
+    };
     row.patterns++;
     if (c.touched) row.touched++;
+    if (stageIndex(c.stage) >= stageIndex("independent")) row.independent++;
+    if (stageIndex(c.stage) >= stageIndex("retained")) row.retained++;
+    if (c.stage === "interview-ready") row.interviewReady++;
+    row.mastery += c.ratio;
     row.solvedHere += c.solvedAnchors.length;
     out.set(t, row);
   }
@@ -148,6 +201,7 @@ export function topicCoverage(): TopicCoverage[] {
 
 export interface Gap {
   pattern: Pattern;
+  stage: MasteryStage;
   /** demand for this pattern's topic, normalised to 0–5 */
   weight: number;
   /** how much adjacent practice exists — softens the gap slightly */
@@ -170,9 +224,10 @@ export interface Gap {
  *   ADJACENT WORK. Capped at 3 and worth a quarter each. Having solved twenty array
  *   problems is a reason to expect Kadane to be quick, not a reason to skip it.
  */
-function scoreGap(pattern: Pattern, weight: number, adjacent: number): number {
+function scoreGap(pattern: Pattern, weight: number, adjacent: number, stage: MasteryStage): number {
   const tierPenalty = pattern.tier === "hard" ? 2 : 0;
-  return weight - tierPenalty - Math.min(adjacent, 3) * 0.25;
+  const evidenceGap = (5 - stageIndex(stage)) * 0.6;
+  return weight + evidenceGap - tierPenalty - Math.min(adjacent, 3) * 0.25;
 }
 
 /** Stable ordering: score, then core before hard, then alphabetical. */
@@ -195,15 +250,16 @@ export function gapsFor(company: CompanyOA, limit = 12): Gap[] {
   const cov = patternCoverage();
   const gaps: Gap[] = [];
   for (const c of cov) {
-    if (c.touched) continue;
+    if (c.stage === "interview-ready") continue;
     const weight = company.weights[c.pattern.t] ?? 0;
     if (weight <= 0) continue;
     gaps.push({
       pattern: c.pattern,
+      stage: c.stage,
       weight,
       adjacent: c.adjacent.length,
-      score: scoreGap(c.pattern, weight, c.adjacent.length),
-      next: c.openAnchors[0] ?? null,
+      score: scoreGap(c.pattern, weight, c.adjacent.length, c.stage),
+      next: c.openAnchors[0] ?? c.pattern.lc?.[0] ?? null,
     });
   }
   gaps.sort(byScore);
@@ -229,14 +285,15 @@ export function gapsOverall(companies: readonly CompanyOA[], limit = 15): Gap[] 
   const cov = patternCoverage();
   const gaps: Gap[] = [];
   for (const c of cov) {
-    if (c.touched) continue;
+    if (c.stage === "interview-ready") continue;
     const weight = Math.round((5 * (demand.get(c.pattern.t) ?? 0)) / n * 10) / 10;
     gaps.push({
       pattern: c.pattern,
+      stage: c.stage,
       weight,
       adjacent: c.adjacent.length,
-      score: scoreGap(c.pattern, weight, c.adjacent.length),
-      next: c.openAnchors[0] ?? null,
+      score: scoreGap(c.pattern, weight, c.adjacent.length, c.stage),
+      next: c.openAnchors[0] ?? c.pattern.lc?.[0] ?? null,
     });
   }
   gaps.sort(byScore);
@@ -257,6 +314,10 @@ export interface Headline {
   medium: number;
   hard: number;
   patternsTouched: number;
+  patternsIndependent: number;
+  patternsRetained: number;
+  patternsInterviewReady: number;
+  patternsUnseen: number;
   patternsTotal: number;
   anchorsSolved: number;
   anchorsTotal: number;
@@ -275,6 +336,10 @@ export function headline(): Headline {
     medium: PROGRESS_COUNTS.medium,
     hard: PROGRESS_COUNTS.hard,
     patternsTouched: cov.filter((c) => c.touched).length,
+    patternsIndependent: cov.filter((c) => stageIndex(c.stage) >= stageIndex("independent")).length,
+    patternsRetained: cov.filter((c) => stageIndex(c.stage) >= stageIndex("retained")).length,
+    patternsInterviewReady: cov.filter((c) => c.stage === "interview-ready").length,
+    patternsUnseen: cov.filter((c) => c.stage === "unseen").length,
     patternsTotal: PATTERNS.length,
     anchorsSolved,
     anchorsTotal,

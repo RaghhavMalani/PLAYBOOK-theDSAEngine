@@ -83,6 +83,12 @@ a:hover{color:var(--blue-dark)}
 .navtab.on{color:var(--blue);border-bottom-color:var(--blue);background:none}
 .countdown{margin-left:auto;font-family:var(--mono);font-size:9.6px;font-weight:650;color:var(--orange-text);
   letter-spacing:.09em;white-space:nowrap;text-transform:uppercase}
+.pwa-install{position:fixed;right:18px;bottom:18px;z-index:90;border:1px solid var(--ink);background:var(--acid);
+  color:var(--ink);padding:9px 12px;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;box-shadow:4px 4px 0 var(--ink);cursor:pointer}
+.pwa-install:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.pwa-install:disabled{cursor:default;opacity:.72;box-shadow:none}
+.pwa-install[hidden]{display:none}
 
 /* ---- generic chrome ---- */
 /* Horizontal padding is repeated from .wrap on purpose: every view carries both

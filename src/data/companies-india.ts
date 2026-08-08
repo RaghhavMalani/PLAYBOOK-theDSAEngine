@@ -24,7 +24,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "190 minutes, ~82 questions, split into Foundation and Advanced. Foundation: Numerical Ability (20Q/25min), Verbal (25Q/25min), Reasoning (20Q/25min). Advanced: Advanced Aptitude (15Q/25min) and Advanced Coding (2 problems / 90 min). One integrated score decides your Ninja, Digital or Prime band.",
     durationMin: 190,
     questions: "~80 MCQs + 2 coding problems",
-    weights: { arr: 4, str: 3, hash: 2, bit: 2, greedy: 1, bs: 1 },
+    weights: { arr: 4, str: 3, comb: 3, hash: 2, bit: 2, rec: 2, queue: 2, greedy: 1, bs: 1 },
     archetypes: [
       "Pattern printing, number series, string reversal — closer to school programming than LeetCode",
       "Array traversal and simple aggregation",
@@ -51,7 +51,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "NQT-style: reasoning, mathematical ability and verbal, then a pseudocode section and 2–3 coding problems. The Specialist Programmer (SP) and Digital Specialist Engineer (DSE) roles use a harder coding paper than the Systems Engineer track.",
     durationMin: 150,
     questions: "MCQ sections + 2–3 coding problems",
-    weights: { arr: 4, str: 3, hash: 2, bs: 2, greedy: 2, dp: 1 },
+    weights: { arr: 4, str: 3, hash: 2, bs: 2, greedy: 2, rec: 2, queue: 2, comb: 2, dp: 1 },
     archetypes: [
       "Pseudocode output prediction — a section unique to Infosys",
       "Array and string manipulation at easy-to-medium level",
@@ -60,7 +60,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
     ],
     edge:
       "The pseudocode section catches people out — it is reading comprehension for code, not writing it. Practise tracing unfamiliar pseudocode by hand. Which role band you are shortlisted for depends heavily on the coding half.",
-    extras: ["Pseudocode section", "Logical reasoning", "Puzzle solving"],
+    extras: ["Pseudocode section", "Logical reasoning", "Puzzle solving", "CS fundamentals (DBMS / OS / CN)"],
     sources: [
       { label: "PrepInsta — Infosys pattern", url: "https://prepinsta.com/infosys/" },
       { label: "PlacementPreparation — Infosys syllabus", url: "https://www.placementpreparation.io/infosys/syllabus-and-test-pattern/" },
@@ -76,7 +76,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "National Level Talent Hunt: aptitude (quant, logical, verbal), then two coding problems, plus a written-communication essay section that is scored separately.",
     durationMin: 138,
     questions: "~50 MCQs + 2 coding + 1 essay",
-    weights: { arr: 4, str: 3, hash: 2, greedy: 1, bs: 1 },
+    weights: { arr: 4, str: 3, hash: 2, queue: 2, greedy: 1, bs: 1, rec: 1, comb: 1 },
     archetypes: [
       "Easy-to-medium array and string problems",
       "Quantitative aptitude and logical reasoning",
@@ -84,7 +84,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
     ],
     edge:
       "The written-communication essay is a real gate and the one most candidates ignore entirely. Practise writing 200 clean words on a generic prompt.",
-    extras: ["Essay / written communication", "Aptitude"],
+    extras: ["Essay / written communication", "Aptitude", "CS fundamentals (DBMS / OS / CN)"],
     sources: [
       { label: "PrepInsta — Wipro NLTH pattern", url: "https://prepinsta.com/wipro/" },
     ],
@@ -99,7 +99,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "GenC: aptitude and communication, then coding. GenC Next and GenC Pro are separate, harder tracks with more DSA and a technical interview that goes deeper.",
     durationMin: 120,
     questions: "MCQ sections + 2 coding problems",
-    weights: { arr: 4, str: 3, hash: 2, bs: 1, greedy: 1 },
+    weights: { arr: 4, str: 3, hash: 2, ood: 2, rec: 2, bs: 1, greedy: 1, queue: 1 },
     archetypes: [
       "Basic array, string and number-theory problems",
       "Aptitude and English communication",
@@ -168,7 +168,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "Five to seven rounds. Written: 25 aptitude questions in 90 minutes, then 10 technical questions in 60 minutes. Then a programming round, then an <b>advanced coding round where you build one complete working system from scratch in about 3 hours</b> in C, C++ or Java. Then technical and HR interviews.",
     durationMin: 180,
     questions: "25 aptitude + 10 technical + programming + a 3-hour build",
-    weights: { arr: 4, str: 5, hash: 3, ll: 3, bit: 3, greedy: 2 },
+    weights: { arr: 4, str: 5, ood: 5, hash: 3, ll: 3, bit: 3, rec: 3, queue: 3, greedy: 2 },
     archetypes: [
       "String processing without library help — Zoho famously restricts built-ins",
       "Pattern printing and matrix manipulation",
@@ -196,7 +196,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "2–3 algorithmic problems at medium-to-hard with partial scoring, sometimes plus a debugging or aptitude section. Then a <b>machine-coding round</b> — you build a small working program, not an algorithm — then 1–2 DSA interviews, sometimes a design round, then HR.",
     durationMin: 90,
     questions: "2–3 problems, medium to hard",
-    weights: { arr: 5, str: 4, dp: 5, graph: 4, tree: 4, heap: 3, greedy: 3, hash: 4 },
+    weights: { arr: 5, str: 4, dp: 5, ood: 5, graph: 4, tree: 4, hash: 4, heap: 3, greedy: 3, rec: 3, queue: 3 },
     archetypes: [
       "Dynamic programming at genuine medium-hard difficulty",
       "Graph traversal and shortest paths",
@@ -418,7 +418,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "60-minute online test across five sections with <b>0.25 negative marking</b>: quantitative aptitude, verbal, logical reasoning, technical MCQs, and a coding problem that is frequently dynamic programming. Then two technical interviews and an HR round.",
     durationMin: 60,
     questions: "4 MCQ sections + 1 coding problem",
-    weights: { dp: 5, arr: 4, bit: 4, greedy: 3, graph: 3, hash: 3 },
+    weights: { dp: 5, comb: 5, arr: 4, bit: 4, greedy: 3, graph: 3, hash: 3, rec: 3 },
     archetypes: [
       "A dynamic programming problem under severe time pressure",
       "Probability and combinatorics in the quant section",
@@ -443,7 +443,7 @@ export const COMPANIES_INDIA: readonly CompanyOA[] = [
       "Two-part online round: technical and aptitude MCQs covering DSA, operating systems and C/C++/Java basics, then two or three coding problems. Five to six rounds in total for the Assistant System Engineer track.",
     durationMin: 120,
     questions: "MCQ section + 2–3 coding problems",
-    weights: { arr: 4, dp: 4, hash: 4, tree: 3, graph: 3, bit: 3, str: 3 },
+    weights: { arr: 4, dp: 4, hash: 4, comb: 4, tree: 3, graph: 3, bit: 3, str: 3, rec: 3, queue: 2 },
     archetypes: [
       "Medium DSA — arrays, strings, DP",
       "MCQs on operating systems and language semantics",

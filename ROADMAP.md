@@ -9,14 +9,15 @@ under a month away — which is why there are two rankings and they disagree.
 
 | | count |
 | --- | --- |
-| Patterns | **63** (53 core + 10 hard tier) |
-| Topic primers | **13**, one per topic, each with an SVG diagram |
+| Patterns | **94** (84 core + 10 hard tier) |
+| Topic primers | **24**, one per topic, each with an SVG diagram |
+| OA essentials | **12 lessons** across aptitude, reasoning and CS theory |
 | Follow-up ladder rungs | **88** across 22 patterns |
-| Edge cases documented | **290** (78 topic-level + 212 pattern-level) |
-| Worked traces | **109** across 38 patterns |
-| Anchor problems linked | **252** |
+| Edge cases documented | **483** (133 topic-level + 350 pattern-level) |
+| Worked traces | **158** across 69 patterns |
+| Anchor problems linked | **364** |
 | Companies profiled | **25** (10 product, 8 fintech/quant, 7 India service) |
-| Zero-to-OA ladder | **11 rungs**, 155–230 hours |
+| Zero-to-OA ladder | **11 rungs**, 163–242 hours |
 | Languages per pattern | **3** (Python, C++, Java) |
 
 Working features: pattern browser with tier/topic filter, real-CPython visualiser
@@ -25,9 +26,9 @@ regression), spaced-repetition drill, mock OA timer, company OA intelligence wit
 live research endpoint, fast-I/O reference, SQL section, four-week plan, printable
 revision sheet.
 
-**Known gaps, stated plainly:** worked traces and edge matrices cover 38 of 63 patterns
-— remaining are hashing (5), arrays (7), binary search (2), greedy (2), bits (4),
-graph (2) and DP (3). `noImplicitAny` is off for the ported DOM glue.
+**Known gaps, stated plainly:** worked traces and edge matrices cover 69 of 94 patterns;
+the remaining 25 entries have the full pattern contract but not both teaching layers yet.
+`noImplicitAny` is off for the ported DOM glue.
 
 ---
 
@@ -109,16 +110,16 @@ toggle in the visualiser toolbar
 
 ---
 
-**Next up:** worked traces for the remaining 57 patterns, and edge matrices for the remaining 41.
+**Next up:** worked traces and edge matrices for the remaining 25 patterns.
 
 ---
 
 ## Tier 2 — finish what is half-built
 
-### 4. Worked traces — **24 of 63 done**
+### 4. Worked traces — **69 of 94 done**
 
-Complete: graphs (5), DP (5), trees (5), heaps (3), plus the original 6.
-Remaining: strings, linked lists, stacks, backtracking, greedy, bits, and the hard tier.
+Sixty-nine patterns now carry a worked state table. The remaining 25 are visible through
+the content-integrity coverage report rather than maintained as a fragile handwritten list.
 
 Traces are the part that actually teaches — the state table is where *"I understand
 it"* becomes *"I can produce it"*. Six patterns have them; the schema and renderer are
@@ -127,10 +128,10 @@ already in place, so this is pure content.
 Priority order: graphs → DP → trees → the hard tier. Those are where a trace helps
 most, because the state is hardest to hold in your head.
 
-### 5. Edge matrices — **34 of 63 done**
+### 5. Edge matrices — **69 of 94 done**
 
-Every pattern that has a worked trace also has an edge matrix, plus the 10 hard-tier
-entries. Same story for the rest: schema and renderer exist, content does not.
+Every pattern with a worked trace now also has an edge matrix. Same story for the rest:
+the schema and renderer exist; 25 entries still need this content.
 
 ### 6. Date-based spaced repetition ✅ **built**
 
@@ -151,10 +152,10 @@ hidden on phones with an explicit message rather than shipped broken.
 
 ### 8. Tests and CI ✅ **built**
 
-`tests/content.test.ts` — **2862 assertions** over the content: shape, uniqueness, slug
+The Vitest suite runs **256 tests** over the content: shape, uniqueness, slug
 format, complexity strings, trace row/column agreement, edge-row completeness, SVG
 well-formedness and token-only colours, company citations, merge-guard throws.
-`scripts/check-snippets.py` parses all **68** Python snippets. `.github/workflows/ci.yml`
+`scripts/check-snippets.py` parses all **99** Python snippets. `.github/workflows/ci.yml`
 runs typecheck → tests → snippets → build on every push.
 
 *Original plan, for reference:*

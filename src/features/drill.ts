@@ -7,6 +7,13 @@ import { topicName } from "../lib/topics";
 import { showView } from "./router";
 import { missedTopics } from "./mistakes";
 
+/** Queue one exact pattern for the next question. Today Mode uses this to make its
+ * recommendation an action, not merely a link to the generic drill. */
+export function queueRecallPattern(name: string): void {
+  store("recallFocus", name);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("pb:recall-focus"));
+}
+
 export function initDrill(): void {
 var TIME=12000;               // ms per question
   var qStart=0, tick: any = null, curQ: any = null, answered=false;
@@ -68,6 +75,12 @@ var TIME=12000;               // ms per question
   }
 
   function weightedPick(){
+    var focus = store<string>("recallFocus");
+    if(focus){
+      store("recallFocus", "");
+      var focused = PAT.find(function(p){ return p.n === focus; });
+      if(focused) return focused;
+    }
     /* Two signals combined:
          - Leitner box: what you got wrong recently comes back sooner
          - mistake log: topics you have ACTUALLY missed get up to 3x the weight
@@ -250,5 +263,6 @@ ok?'<div class="say"><b>Correct.</b> Moved to box '+boxOf(p)+' — you will see 
     }
   });
 
+  window.addEventListener("pb:recall-focus", nextQ);
   shell();
 }

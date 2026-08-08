@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { PATTERNS } from "../src/data/index";
 import { COMPANIES } from "../src/data/companies";
-import { SOLVED, PROGRESS_COUNTS } from "../src/data/progress.generated";
+import { SOLVED, PROGRESS_COUNTS, PROGRESS_SYNC } from "../src/data/progress.generated";
 import {
   FAMILY_TO_TOPICS,
   unmappedFamilies,
@@ -12,6 +12,7 @@ import {
   headline,
   notesUrl,
   solutionUrl,
+  progressSyncAge,
 } from "../src/data/progress";
 
 const TOPIC_IDS = new Set(PATTERNS.map((p) => p.t));
@@ -37,6 +38,25 @@ describe("the generated progress snapshot", () => {
       expect(seen.has(e.num)).toBe(false);
       seen.add(e.num);
     }
+  });
+
+  it("retains contract provenance and source-level solution facts", () => {
+    expect(PROGRESS_SYNC.schemaVersion).toBe("1.0.0");
+    expect(PROGRESS_SYNC.sourceCommit).toMatch(/^[a-f0-9]{40}$/);
+    expect(Number.isNaN(Date.parse(PROGRESS_SYNC.generatedAt))).toBe(false);
+    for (const entry of SOLVED) {
+      expect(entry.langs.length).toBeGreaterThan(0);
+      expect(Object.keys(entry.solutionHashes).length).toBeGreaterThan(0);
+      expect(Number.isNaN(Date.parse(entry.lastSolvedAt))).toBe(false);
+      for (const hash of Object.values(entry.solutionHashes)) {
+        expect(hash).toMatch(/^[a-f0-9]{64}$/);
+      }
+    }
+  });
+
+  it("formats the generated-at timestamp as a live relative age", () => {
+    const generated = Date.parse(PROGRESS_SYNC.generatedAt);
+    expect(progressSyncAge(generated + 4 * 60_000)).toBe("4 minutes ago");
   });
 
   for (const e of SOLVED) {
@@ -136,15 +156,15 @@ describe("the headline never flatters", () => {
 });
 
 describe("gap ranking gives usable advice", () => {
-  it("never suggests a pattern you have already met", () => {
-    const met = new Set(
+  it("only removes patterns once they are interview-ready", () => {
+    const ready = new Set(
       patternCoverage()
-        .filter((c) => c.touched)
+        .filter((c) => c.stage === "interview-ready")
         .map((c) => c.pattern.n),
     );
     for (const co of COMPANIES) {
       for (const g of gapsFor(co)) {
-        if (met.has(g.pattern.n)) throw new Error(`${co.name}: suggested met pattern ${g.pattern.n}`);
+        if (ready.has(g.pattern.n)) throw new Error(`${co.name}: suggested interview-ready pattern ${g.pattern.n}`);
       }
     }
   });

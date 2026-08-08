@@ -75,7 +75,7 @@ const COMPANIES_GLOBAL: readonly CompanyOA[] = [
       "Asynchronous OA with one to two LeetCode-medium problems plus short written behavioural prompts. Interview rounds favour one well-scoped problem rather than Meta's two.",
     durationMin: 70,
     questions: "1–2 coding problems + short-answer behavioural",
-    weights: { arr: 5, str: 5, ll: 4, tree: 4, hash: 4, graph: 3, dp: 3, stk: 3, heap: 2, bs: 2 },
+    weights: { arr: 5, str: 5, ll: 4, tree: 4, hash: 4, ood: 4, graph: 3, dp: 3, stk: 3, rec: 3, queue: 3, heap: 2, bs: 2 },
     archetypes: [
       "Linked list manipulation — reversal, merging, cycle handling",
       "String parsing and in-place transformation",
@@ -127,7 +127,7 @@ const COMPANIES_GLOBAL: readonly CompanyOA[] = [
       "70–90 minutes with FOUR questions ranging easy/medium to medium/hard. Reports consistently say you need roughly three of four solved fully to advance. Frequently includes a SQL section alongside the DSA.",
     durationMin: 90,
     questions: "3–4 problems, plus SQL",
-    weights: { arr: 5, str: 5, hash: 5, dp: 4, graph: 3, bs: 3, greedy: 2, tree: 2 },
+    weights: { arr: 5, str: 5, hash: 5, dp: 4, graph: 3, bs: 3, greedy: 2, tree: 2, queue: 2, comb: 2 },
     archetypes: [
       "Transaction-record processing — dedupe, aggregate, find anomalies with a hash map",
       "Running sums / prefix aggregation over a sequence",
@@ -153,7 +153,7 @@ const COMPANIES_GLOBAL: readonly CompanyOA[] = [
       "Coding challenge covering DSA fundamentals, typically two problems — one easy, one harder. Sometimes delivered as a HireVue digital interview mixing behavioural questions with coding tasks.",
     durationMin: 75,
     questions: "2 problems (one easy, one harder)",
-    weights: { arr: 5, str: 4, hash: 4, dp: 3, tree: 3, greedy: 2, bs: 2, graph: 2 },
+    weights: { arr: 5, str: 4, hash: 4, dp: 3, tree: 3, comb: 3, greedy: 2, bs: 2, graph: 2 },
     archetypes: [
       "Standard competitive-programming style array/string problems",
       "Hash-map counting and grouping",

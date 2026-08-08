@@ -40,23 +40,34 @@ const SUBREDDITS = [
   "interviewpreparation",
 ];
 
-const TOPIC_TERMS: Record<TopicId, string[]> = {
+export const TOPIC_TERMS: Record<TopicId, string[]> = {
   hash: ["hash map", "hashmap", "hash table", "dictionary", "frequency", "anagram", "two sum", "counter"],
   str: ["string", "substring", "palindrome", "character", "parsing", "regex"],
-  arr: ["array", "subarray", "two pointer", "sliding window", "prefix sum", "kadane", "intervals"],
+  arr: ["array", "subarray", "two pointer", "sliding window", "kadane"],
   bs: ["binary search", "sorted array", "lower bound", "search space", "minimise the maximum", "minimize the maximum"],
   ll: ["linked list", "reverse list", "cycle detection", "fast and slow", "dummy node"],
-  stk: ["stack", "queue", "monotonic", "parenthes", "deque", "next greater"],
-  tree: ["binary tree", "bst", "traversal", "inorder", "level order", "lca", "trie"],
+  stk: ["stack", "parenthes", "next greater", "histogram", "expression parsing"],
+  tree: ["binary tree", "bst", "traversal", "inorder", "level order", "lca"],
   heap: ["heap", "priority queue", "top k", "kth largest", "median", "merge k"],
-  graph: ["graph", "bfs", "dfs", "shortest path", "dijkstra", "topological", "union find", "grid", "island", "scc", "mst"],
+  graph: ["graph", "bfs", "dfs", "shortest path", "dijkstra", "topological", "scc", "mst"],
   dp: ["dynamic programming", " dp ", "knapsack", "memoi", "subsequence", "edit distance", "lis"],
   bt: ["backtracking", "permutation", "subset", "combination", "n-queens", "sudoku"],
   greedy: ["greedy", "interval scheduling", "activity selection", "exchange argument"],
-  bit: ["bit manipulation", "bitmask", "xor", "prime", "modulo", "gcd", "probability", "sieve"],
+  bit: ["bit manipulation", "bitwise", "bitmask", "xor", "popcount", "set bit", "bit shift"],
+  math: ["number theory", "prime", "sieve", "gcd", "lcm", "modulo", "modular", "combinatorics", "probability", "factorial"],
+  intv: ["interval", "prefix sum", "difference array", "sweep line", "range query"],
+  design: ["lru", "lfu", "cache design", "design data structure", "rate limiter", "object-oriented design"],
+  sort: ["sorting", "merge sort", "quicksort", "quickselect", "divide and conquer", "comparator", "inversion count"],
+  grid: ["matrix", "grid", "island", "flood fill", "maze", "spiral", "rotate image", "2d array"],
+  trie: ["trie", "prefix tree", "autocomplete", "word search"],
+  dsu: ["union find", "union-find", "disjoint set", "dsu", "connected components", "kruskal"],
+  rec: ["recursion", "recursive", "call stack", "divide and conquer", "memoization", "memoisation"],
+  queue: ["queue", "deque", "circular queue", "ring buffer", "level order", "sliding window maximum"],
+  ood: ["oop", "object oriented", "object-oriented", "low level design", "lld", "machine coding", "design pattern"],
+  comb: ["combinatorics", "probability", "permutation", "combination", "expected value", "inclusion exclusion", "ncr"],
 };
 
-function countTopics(hits: ResearchHit[]): Partial<Record<TopicId, number>> {
+export function countTopics(hits: ResearchHit[]): Partial<Record<TopicId, number>> {
   const blob = hits.map((h) => `${h.title} ${h.snippet}`).join(" ").toLowerCase();
   const out: Partial<Record<TopicId, number>> = {};
   for (const [topic, terms] of Object.entries(TOPIC_TERMS) as [TopicId, string[]][]) {

@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "sync:progress": "node scripts/sync-progress.mjs"
+    "sync:progress": "node scripts/import-progress.mjs ../leetcode-progress/progress.json && node scripts/generate-replays.mjs ../leetcode-progress",
+    "sync:progress:contract": "node scripts/import-progress.mjs",
+    "sync:replays": "node scripts/generate-replays.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

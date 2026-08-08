@@ -95,7 +95,7 @@ p.brief code,li code,td code{font-family:var(--mono);font-size:13px;color:var(--
 .stat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
 .stat .v{font-family:var(--mono);font-size:23px;font-weight:700;line-height:1.25;transition:color .3s}
 .stat .v.flash{animation:flashv .55s}
-@keyframes flashv{0%{color:var(--blue)}100%{}}100%{}}
+@keyframes flashv{0%{color:var(--blue)}100%{}}
 .stat.c1 .v{color:var(--cyan)} .stat.c2 .v{color:var(--mag)} .stat.c3 .v{color:var(--amb)} .stat.c4 .v{color:var(--lime)}
 
 /* ---------------- LAYOUTS ---------------- */

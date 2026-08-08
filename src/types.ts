@@ -8,7 +8,8 @@ export type TopicId =
   /* Added after auditing which families the solved-problem repo actually falls into.
    * "bit" was carrying number theory, and intervals were split across arr and hash;
    * both now have a home, which also lets the coverage bridge map 1:1. */
-  | "math" | "intv" | "design" | "sort" | "grid" | "trie" | "dsu";
+  | "math" | "intv" | "design" | "sort" | "grid" | "trie" | "dsu"
+  | "rec" | "queue" | "ood" | "comb";
 
 export type Lang = "py" | "cpp" | "java";
 
@@ -146,4 +147,41 @@ export interface ResearchResponse {
   topicMentions: Partial<Record<TopicId, number>>;
   fetchedAt: string;
   note?: string;
+}
+
+/* ---------- non-DSA OA essentials ---------- */
+
+export type OAEssentialId = "quant" | "reasoning" | "cs";
+
+export interface OACheckpoint {
+  prompt: string;
+  choices: readonly string[];
+  /** Zero-based index into choices. */
+  answer: number;
+  explanation: string;
+}
+
+export interface OALesson {
+  id: string;
+  title: string;
+  minutes: number;
+  goal: string;
+  method: readonly string[];
+  trap: string;
+  worked: {
+    prompt: string;
+    steps: readonly string[];
+    answer: string;
+  };
+  checkpoint: OACheckpoint;
+}
+
+export interface OAEssentialSection {
+  id: OAEssentialId;
+  label: string;
+  eyebrow: string;
+  description: string;
+  /** Case-insensitive signals matched against CompanyOA.extras and archetypes. */
+  companyKeywords: readonly string[];
+  lessons: readonly OALesson[];
 }

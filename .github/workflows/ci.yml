@@ -17,6 +17,11 @@ jobs:
 
       - run: npm ci
 
+      - name: Committed progress snapshot must be present
+        run: |
+          test -s src/data/progress.generated.ts
+          echo "::warning file=src/data/progress.generated.ts::PR CI validates the committed snapshot; freshness is enforced by sync-progress.yml."
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -27,4 +32,4 @@ jobs:
         run: python3 scripts/check-snippets.py
 
       - name: Production build
-        run: npx vite build
+        run: npm run build

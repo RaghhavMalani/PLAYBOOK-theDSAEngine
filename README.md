@@ -2,17 +2,31 @@
 
 Two instruments for placement prep, sharing one design system and one typed dataset.
 
-**[Playbook](./playbook.html)** — 77 patterns across 20 topics in Python, C++ and Java;
-topic primers with diagrams; a real-CPython code visualiser; an empirical complexity
-analyser; a stress tester; spaced-repetition drilling; a mistake log; OA intelligence on
-25 companies; and an 11-rung ladder that starts at "I can write a for loop".
+**[Playbook](./playbook.html)** — 94 patterns across 24 topics in Python, C++ and Java;
+topic primers with diagrams; aptitude, reasoning and CS-theory lessons; a real-CPython code
+visualiser; an empirical complexity analyser; a stress tester; spaced-repetition drilling;
+a mistake log; OA intelligence on 25 companies; and an 11-rung ladder that starts at
+"I can write a for loop".
 **Open it on the "start here" tab** — it routes you by situation rather
-than making you guess which of ten tools you need.
+than making you guess which tool you need.
 
 **[Your coverage](./playbook.html#progress)** — the playbook reads your
 [leetcode-progress](https://github.com/RaghhavMalani/leetcode-progress) repo and tells you
-which of the 63 patterns you have **never** solved a problem for, ranked by how much each
-of the 25 companies weights it. Run `npm run sync:progress` after you solve things.
+which of the 94 patterns you have **never** solved a problem for, ranked by how much each
+of the 25 companies weights it. Its versioned `progress.json` contract publishes changes
+automatically; `npm run sync:progress` imports the sibling clone's committed contract for offline use.
+
+**[Replay lab](./playbook.html#lab)** — connects every saved personal trace to its exact
+curriculum pattern when available (or an explicitly labelled family analogue). Step through the
+accepted code beside the generic trace, predict the next state, mutate plain Python inputs and
+re-run locally, compare growth, inject an invariant bug, then stress-test and shrink the failure.
+
+**[Grounded interviewer](./playbook.html#interviewer)** — runs a structured interview from only
+the selected pattern, anchor problem, rubric, worked trace and follow-up ladder. It locks
+constraints and intended complexity before approach, challenges unsupported greedy choices,
+probes negative inputs, generates counterexamples, demands an invariant, adapts the escalation,
+and converts weak transcript signals into reviewable mistake-log entries. Browser voice input and
+spoken prompts are optional.
 
 **[Memory](./memory.html)** — the arrays deep dive. Drive a dynamic array by hand and
 watch amortisation happen, see why cache locality beats Big-O, step through five array
@@ -24,16 +38,18 @@ templates frame by frame, and read the complexity *and memory* estimator.
 
 | | count |
 | --- | --- |
-| Patterns | **77** — 67 core + 10 hard tier |
-| Topic primers | **20**, each with an SVG diagram, op-cost table and edge cases |
+| Patterns | **94** — 84 core + 10 hard tier |
+| Topic primers | **24**, each with an SVG diagram, op-cost table and edge cases |
+| OA essentials | **12 lessons** across quantitative aptitude, reasoning and CS theory |
 | Follow-up ladder rungs | **88** across 22 patterns |
-| Documented edge cases | **395** (113 topic-level + 282 pattern-level) |
-| Worked traces | **141** across 52 patterns |
-| Anchor problems | **306** LeetCode links |
+| Documented edge cases | **483** (133 topic-level + 350 pattern-level) |
+| Worked traces | **158** across 69 patterns |
+| Personal replays | **112** imported from accepted-solution visualisations |
+| Anchor problems | **364** LeetCode links |
 | Companies profiled | **25** — 10 product, 8 fintech/quant, 7 India service |
-| Zero-to-OA ladder | **11 rungs**, 155–230 honest hours |
-| Content assertions in CI | **6634** |
-| Your solved problems read | **117** — 27 of 63 patterns met |
+| Zero-to-OA ladder | **11 rungs**, 163–242 honest hours |
+| Automated verification | **Vitest content/coverage suite + Python snippet parser** |
+| Your solved problems read | **126** — 48 of 94 patterns exposed |
 
 Every pattern carries the same five things: the **signal** that identifies it, **why**
 it works, the **trap** that costs the round, a line worth **saying out loud**, and the
@@ -53,10 +69,12 @@ npm run dev        # http://localhost:5173
 | --- | --- |
 | `npm run dev` | dev server with hot reload |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | 6634 content assertions via vitest |
+| `npm test` | Vitest content, classifier, backup and coverage tests |
 | `npm run build` | typecheck, then production build into `dist/` |
 | `npm run preview` | serve the built output |
-| `npm run sync:progress` | re-read `../leetcode-progress` into `src/data/progress.generated.ts` |
+| `npm run sync:progress` | import `../leetcode-progress/progress.json` and rebuild personal replays |
+| `npm run sync:progress:contract -- path/to/progress.json` | import an exact live contract snapshot |
+| `npm run sync:replays -- path/to/leetcode-progress` | rebuild the personal replay snapshot |
 
 Run them one at a time — pasting a multi-line block into PowerShell executes every line.
 
@@ -72,6 +90,18 @@ git add -A
 git commit -m "the engine"
 git push
 ```
+
+### Installable, offline and cross-device
+
+Production builds are installable as a PWA. Vite generates a precache manifest from the real
+build output, so Today, drills, primers, patterns and replay traces keep working without a
+network. API/auth requests are deliberately excluded from the cache.
+
+The Mistake log view can export or restore a validated, schema-versioned JSON file containing all
+non-regenerable learning state. Optional authenticated sync keeps the browser local-first and
+merges categories independently across devices. To enable it, configure a Supabase project and
+the two `VITE_SUPABASE_*` build variables described in
+[`docs/learning-sync.md`](./docs/learning-sync.md).
 
 ### Optional: live OA research
 
@@ -109,7 +139,7 @@ src/
   memory/             the memory engine
   styles/             tokens.css is shared; playbook/memory are per-page
 api/oa-research.ts    Vercel edge function
-tests/                6634 content assertions
+tests/                content, classifier, backup and coverage assertions
 scripts/              python snippet syntax checker (runs in CI)
 legacy/               the original single-file builds, kept for reference
 ```
@@ -118,16 +148,15 @@ legacy/               the original single-file builds, kept for reference
 follow-up, edge-case and worked-trace layers onto the patterns by name, and **throws at
 load** if a key stops matching — so renaming a pattern fails loudly instead of silently
 dropping its content. CI additionally checks SVG well-formedness, that diagrams use only
-design tokens, that trace rows match their column counts, and that all 68 Python
+design tokens, that trace rows match their column counts, and that all 99 Python
 snippets parse.
 
 ---
 
 ## Honest notes
 
-- **Worked traces and edge matrices cover 52 of 77 patterns.** What is left is hashing,
-  arrays, binary search, greedy, bits, and a handful of graph and DP entries. The schema
-  and renderer handle all 63 — the rest is content still to write. See `ROADMAP.md`.
+- **Worked traces and edge matrices cover 69 of 94 patterns.** The schema and renderer
+  handle all 94 — the remaining 25 are content still to write. See `ROADMAP.md`.
 - **`noImplicitAny` is off** for the ported DOM glue in `src/features` and `src/memory`.
   The data layer, types, lib and newer features are fully strict. Documented in
   `tsconfig.json` with a TODO rather than hidden.
@@ -135,11 +164,13 @@ snippets parse.
   reports. Nobody publishes measured frequencies. Read the cited sources before
   reorganising a week around one bar.
 - **Coverage is measured on anchors only.** A pattern counts as met when you have
-  solved a problem this playbook lists as an anchor for it. 81 of your 117 solved
+  solved a problem this playbook lists as an anchor for it. 70 of your 126 solved
   problems are not anchors for anything here — real work, but not evidence about these
-  63 patterns. The view says so rather than quietly counting them.
-- **`progress.generated.ts` is committed on purpose.** Vercel only checks out this repo,
-  so the snapshot has to travel with it. Re-run the sync script and commit after solving.
+  94 patterns. The view says so rather than quietly counting them.
+- **`progress.generated.ts` is committed on purpose.** The source repository publishes a
+  versioned contract and dispatches the sync workflow; the resulting Playbook commit is
+  deterministic and triggers deployment. See `docs/progress-bridge.md` for setup and the
+  read-only offline fallback.
 
 - **The visualiser is desktop-only.** It is hidden on phones with an explicit message
   rather than shipped broken.
