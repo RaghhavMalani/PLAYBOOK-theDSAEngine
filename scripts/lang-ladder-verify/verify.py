@@ -11,11 +11,16 @@ it, captures their stdout, rebuilds what each rung's output field should be, and
 diffs that against what the TypeScript actually contains. Any drift fails loudly
 and says which rung.
 
-    python3 scripts/lang-ladder-verify/verify.py
+    npm run verify:ladder
 
-Requires g++ (C++17), a JDK 11+ with the single-file source launcher, and
-python3. If a toolchain is missing the script says so and skips that language
-rather than pretending it passed.
+Go through npm rather than calling this directly: scripts/run-python.mjs finds a
+real Python 3 on any OS, which matters on Windows where `python3` is usually a
+Microsoft Store placeholder rather than an interpreter.
+
+Also requires g++ (C++17) and a JDK 11+ with the single-file source launcher,
+because it re-RUNS the programs rather than trusting a stored transcript. If any
+of the three is missing it says which, and how to install it, instead of failing
+somewhere deep in a subprocess.
 """
 from __future__ import annotations
 
@@ -108,9 +113,24 @@ def data_blocks() -> dict[int, dict[str, str]]:
 
 
 def main() -> int:
-    missing = [t for t in ("g++", "java", sys.executable) if not have(t)]
+    """Compile, run, and diff. Reports a missing toolchain clearly rather than
+    failing somewhere deep in a subprocess call."""
+    needed = {
+        "g++": "a C++17 compiler — MSYS2/MinGW-w64 or `winget install BrechtSanders.WinLibs.POSIX.UCRT`",
+        "java": "a JDK 11+ — `winget install Microsoft.OpenJDK.21`",
+    }
+    missing = [t for t in needed if not have(t)]
     if missing:
-        print(f"missing toolchain: {', '.join(missing)}", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  Cannot verify: missing toolchain.", file=sys.stderr)
+        print("", file=sys.stderr)
+        for t in missing:
+            print(f"    {t:<6} not on PATH — {needed[t]}", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("  This script re-RUNS the programs and diffs their output against the", file=sys.stderr)
+        print("  data file, so it needs the compilers, not just Python. `npm run", file=sys.stderr)
+        print("  typecheck` still checks the code without them.", file=sys.stderr)
+        print("", file=sys.stderr)
         return 2
 
     captured: dict[str, dict[str, dict[int, list[str]]]] = {}
