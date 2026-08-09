@@ -1,9 +1,11 @@
 import "./styles/tokens.css";
 import "./styles/playbook.css";
 
+import { migrateLearningKeys } from "./lib/migrations";
 import { initRouter } from "./features/router";
 import { initGuide } from "./features/guide";
 import { initPrimers } from "./features/primers";
+import { initApproach } from "./features/approach";
 import { initPatterns } from "./features/patterns";
 import { initVisualiser } from "./features/visualiser";
 import { initDrill } from "./features/drill";
@@ -21,6 +23,7 @@ import { initCloudSync } from "./lib/cloud-sync";
 import { initPwa } from "./lib/pwa";
 
 function boot(): void {
+  migrateLearningKeys();   // before any view reads conf/boxes
   initPwa();
   initCloudSync();
   initRouter();
@@ -28,6 +31,7 @@ function boot(): void {
   initInterviewer();
   initGuide();
   initPrimers();
+  initApproach();
   initPatterns();
   initVisualiser();
   initCompanies();
