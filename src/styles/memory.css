@@ -101,6 +101,11 @@ p.brief code,li code,td code{font-family:var(--mono);font-size:13px;color:var(--
 /* ---------------- LAYOUTS ---------------- */
 .split{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;align-items:start}
 .split3{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+/* Grid children default to min-width:auto, so a wide stats row or canvas refuses to
+ * shrink and pushes the panel past the container instead of fitting. Every direct
+ * child needs min-width:0 for the fractional columns to actually be fractional. */
+.split > *, .split3 > *{min-width:0}
+.split canvas, .split3 canvas{max-width:100%}
 @media(max-width:960px){.split,.split3{grid-template-columns:1fr}}
 
 /* ---------------- CODE PANEL ---------------- */
@@ -288,3 +293,9 @@ footer{border-top:1px solid var(--line);padding:50px 0 70px;color:var(--dim);fon
   .reveal{opacity:1;transform:none}
   body::after{display:none}
 }
+
+/* Same guard as playbook.css: cap the three element types that refuse to shrink,
+ * rather than patching every grid container individually. */
+section pre, section table, section canvas{max-width:100%}
+section pre{overflow-x:auto}
+.stats > *{min-width:0}

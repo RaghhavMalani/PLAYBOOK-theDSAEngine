@@ -228,6 +228,32 @@ function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/
     cellEls.forEach(function(d){ d.classList.remove("copying"); });
     refreshStats(true); busy=false;
   }
+
+  /* The widget models three languages, so it must SPEAK three languages. Showing
+   * push_back() while "CPython list" is selected teaches vocabulary that does not
+   * exist in the language the user just chose. Keys match data-eng. */
+  var OPS: any = {
+    "2": {  // libstdc++ / libc++  -> std::vector
+      push:"push_back(x)", pop:"pop_back()", front:"insert(begin(), x)",
+      erase:"erase(begin()+mid)", reserve:"reserve(32)", x10:"push_back ×10", reset:"clear()",
+    },
+    "1.5": { // MSVC / Java ArrayList
+      push:"add(x)", pop:"remove(size()-1)", front:"add(0, x)",
+      erase:"remove(mid)", reserve:"ensureCapacity(32)", x10:"add ×10", reset:"clear()",
+    },
+    "cpy": { // CPython list
+      push:"append(x)", pop:"pop()", front:"insert(0, x)",
+      erase:"del a[mid]", reserve:"(no reserve — CPython grows on demand)", x10:"append ×10", reset:"a.clear()",
+    },
+  };
+  function relabelOps(){
+    var m = OPS[GROW.key] || OPS["2"];
+    $$("[data-eng]").forEach(function(b){
+      var k = b.dataset.eng!;
+      if (m[k]) b.textContent = m[k];
+    });
+  }
+
   function reset(){
     gen++; busy=false;                 /* cancel anything mid-flight */
     arr=[]; cap=0; reallocs=0; copies=0; costs=[]; nextVal=1;
@@ -249,14 +275,23 @@ function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/
     });
   });
   $$("[data-grow]").forEach(function(b){
-    b.addEventListener("click",function(){
+    b.addEventListener("click", async function(){
       var k=b.dataset.grow!;
+      /* Replay the same number of appends under the new factor rather than clearing.
+       * The section copy promises "switch models and watch the spikes rearrange", and
+       * you cannot compare two growth curves if changing the model empties the chart.
+       * Rebuilding to the same n is what makes the comparison meaningful. */
+      var n = arr.length || 5;
       GROW={f: k==="cpy" ? 0 : parseFloat(k), key:k};
       $$("[data-grow]").forEach(function(x){ x.classList.remove("on"); });
       b.classList.add("on");
+      relabelOps();
       reset();
+      var g=gen;
+      for(var i=0;i<n;i++){ if(stale(g)) return; await push(true); }
     });
   });
+  relabelOps();
   reset();
   addEventListener("resize", drawChart);
   // seed a few so it isn't empty
