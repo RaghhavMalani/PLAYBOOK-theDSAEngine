@@ -1,5 +1,7 @@
 import "./styles/tokens.css";
 import "./styles/playbook.css";
+// Shared with the memory page: the ladder renders on both.
+import "./styles/ladder.css";
 
 import { migrateLearningKeys } from "./lib/migrations";
 import { initRouter } from "./features/router";

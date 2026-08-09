@@ -18,146 +18,9 @@
 import { esc, store } from "../lib/dom";
 import { showView } from "./router";
 import { ARRAY_APPROACH, ARRAY_SIGNALS, ARRAY_PITFALLS } from "../data/approach-arrays";
-import {
-  LANG_LADDER,
-  LADDER_TIERS,
-  LADDER_GROUPS,
-  LADDER_LANGS,
-} from "../data/lang-ladder";
-import type { LangKey, LadderRung, ApiRow } from "../data/lang-ladder";
+import { mountLadder } from "./ladder-view";
+import { LADDER_LANGS } from "../data/lang-ladder";
 
-
-const LKEY = "ladderLang";
-const lang = (): LangKey => (store<LangKey>(LKEY) ?? "py") as LangKey;
-
-/** Current filter state for the ladder. Kept module-level so a repaint is one call. */
-const view = { tier: "all", group: "all", q: "", open: false };
-
-const pick = (r: { py: string; cpp: string; java: string }, L: LangKey): string =>
-  L === "py" ? r.py : L === "cpp" ? r.cpp : r.java;
-
-/**
- * Complexity strings are turned into the same pills the rest of the playbook uses,
- * so O(1) and O(n) are distinguishable at a glance rather than needing to be read.
- * Anything unrecognised falls through to the neutral pill rather than guessing.
- */
-function costPill(cost: string): string {
-  const c = cost.toLowerCase();
-  const cls = c.includes("o(1)")
-    ? "O1"
-    : c.includes("log") && !c.includes("n log")
-      ? "Ol"
-      : c.includes("n log") || c.includes("o(n")
-        ? "On"
-        : "Ob";
-  return `<span class="O ${cls}">${esc(cost)}</span>`;
-}
-
-function apiTable(rows: readonly ApiRow[]): string {
-  if (!rows.length) return "";
-  return `<table class="lapi">
-    <thead><tr><th>call</th><th>gives you</th><th>cost</th><th>what bites</th></tr></thead>
-    <tbody>${rows
-      .map(
-        (a) => `<tr>
-        <td><code>${esc(a.call)}</code></td>
-        <td>${esc(a.gives)}</td>
-        <td>${costPill(a.cost)}</td>
-        <td class="muted">${a.gotcha ? esc(a.gotcha) : "—"}</td>
-      </tr>`,
-      )
-      .join("")}</tbody></table>`;
-}
-
-/** Free-text search across everything a rung says, not just its title. */
-function matches(r: LadderRung, q: string): boolean {
-  if (!q) return true;
-  const hay = [
-    r.title,
-    r.why,
-    r.intuition,
-    r.useWhen,
-    r.differs,
-    r.group,
-    r.py,
-    r.cpp,
-    r.java,
-    r.drill.ask,
-    r.drill.lc ?? "",
-    (r.see ?? []).join(" "),
-    r.api.py.concat(r.api.cpp, r.api.java).map((a) => a.call + " " + a.gives + " " + (a.gotcha ?? "")).join(" "),
-  ]
-    .join(" ")
-    .toLowerCase();
-  return q
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .every((t) => hay.includes(t));
-}
-
-function renderRung(r: LadderRung, L: LangKey): string {
-  const open = view.open ? " open" : "";
-  return `<div class="lrung" data-n="${r.n}">
-    <div class="lrhead">
-      <span class="apnum">${String(r.n).padStart(2, "0")}</span>
-      <h4>${esc(r.title)}</h4>
-      <span class="lgrp">${esc(r.group)}</span>
-      <span class="ltier lt-${r.tier}">${r.tier}</span>
-    </div>
-
-    <p class="lwhy">${esc(r.why)}</p>
-
-    <div class="lintu">
-      <b>How it actually works</b>
-      <p>${r.intuition}</p>
-    </div>
-
-    <p class="luse"><b>Reach for it when</b> ${esc(r.useWhen)}</p>
-
-    <pre class="src lcode">${esc(pick(r, L))}</pre>
-
-    <details class="lfold"${open}>
-      <summary>Function reference — every call, what it returns, what it costs</summary>
-      ${apiTable(r.api[L])}
-    </details>
-
-    <div class="lout"><b>Actual output — all three, as run</b><pre>${esc(r.output)}</pre></div>
-
-    <p class="ldiff"><b>What differs.</b> ${r.differs}</p>
-
-    <details class="lfold ldrill"${open}>
-      <summary>Drill — ${esc(r.drill.ask)}${r.drill.lc ? ` <span class="llc">${esc(r.drill.lc)}</span>` : ""}</summary>
-      <pre class="src lcode">${esc(pick(r.drill, L))}</pre>
-      <div class="lout"><b>Result</b><pre>${esc(r.drill.out)}</pre></div>
-    </details>
-
-    ${
-      r.see?.length
-        ? `<div class="lsee"><b>Same rung, wearing a hat</b>${r.see
-            .map((s) => `<span class="lseechip">${esc(s)}</span>`)
-            .join("")}</div>`
-        : ""
-    }
-  </div>`;
-}
-
-function renderLadder(): string {
-  const L = lang();
-  const rows = LANG_LADDER.filter(
-    (r) =>
-      (view.tier === "all" || r.tier === view.tier) &&
-      (view.group === "all" || r.group === view.group) &&
-      matches(r, view.q),
-  );
-  const count = `<p class="lcount">Showing <b>${rows.length}</b> of ${LANG_LADDER.length} rungs${
-    view.q ? ` matching “${esc(view.q)}”` : ""
-  }.</p>`;
-  if (!rows.length) {
-    return `${count}<p class="muted">Nothing at that combination. Clear the search or widen the level.</p>`;
-  }
-  return count + rows.map((r) => renderRung(r, L)).join("");
-}
 
 interface Answers {
   [step: number]: number;
@@ -300,29 +163,7 @@ export function renderApproach(): void {
       all three languages with their costs, the executed disagreement, and a real problem
       solved with it.
     </p>
-    <div class="ltools">
-      <div class="btnrow">
-        <span class="apsidehead" style="margin:0">language</span>
-        ${LADDER_LANGS.map(
-          (l) => `<button class="btn lang-b" data-lang="${l.key}" title="${esc(l.runtime)}">${l.label}</button>`,
-        ).join("")}
-      </div>
-      <div class="btnrow">
-        <span class="apsidehead" style="margin:0">level</span>
-        <button class="btn tier-b" data-tier="all">all</button>
-        ${LADDER_TIERS.map((t) => `<button class="btn tier-b" data-tier="${t}">${t}</button>`).join("")}
-      </div>
-      <div class="btnrow">
-        <span class="apsidehead" style="margin:0">family</span>
-        <button class="btn grp-b" data-grp="all">all</button>
-        ${LADDER_GROUPS.map((g) => `<button class="btn grp-b" data-grp="${g}">${esc(g)}</button>`).join("")}
-      </div>
-      <div class="btnrow lsearchrow">
-        <input type="text" id="lq" placeholder="search 40 rungs — try “overflow”, “lower_bound”, “heap”, “subList”…">
-        <button class="btn" id="lexpand">expand all</button>
-      </div>
-    </div>
-    <div id="lladder">${renderLadder()}</div>
+    <div id="lladder"></div>
 
     <h3>The five that cost the most marks</h3>
     <p class="muted">Ranked by how often they survive your own testing — which is what makes them dangerous.</p>
@@ -364,56 +205,7 @@ export function renderApproach(): void {
     };
   }
 
-  const paintLadder = (): void => {
-    const box = document.getElementById("lladder");
-    if (box) box.innerHTML = renderLadder();
-    host.querySelectorAll<HTMLElement>(".lang-b").forEach((b) =>
-      b.classList.toggle("on", b.dataset.lang === lang()),
-    );
-    host.querySelectorAll<HTMLElement>(".tier-b").forEach((b) =>
-      b.classList.toggle("on", b.dataset.tier === view.tier),
-    );
-    host.querySelectorAll<HTMLElement>(".grp-b").forEach((b) =>
-      b.classList.toggle("on", b.dataset.grp === view.group),
-    );
-    const ex = document.getElementById("lexpand");
-    if (ex) ex.textContent = view.open ? "collapse all" : "expand all";
-  };
-  host.querySelectorAll<HTMLElement>(".lang-b").forEach((b) => {
-    b.onclick = () => {
-      store(LKEY, b.dataset.lang as LangKey);
-      paintLadder();
-    };
-  });
-  host.querySelectorAll<HTMLElement>(".tier-b").forEach((b) => {
-    b.onclick = () => {
-      view.tier = b.dataset.tier ?? "all";
-      paintLadder();
-    };
-  });
-  host.querySelectorAll<HTMLElement>(".grp-b").forEach((b) => {
-    b.onclick = () => {
-      view.group = b.dataset.grp ?? "all";
-      paintLadder();
-    };
-  });
-  const lq = document.getElementById("lq") as HTMLInputElement | null;
-  if (lq) {
-    lq.value = view.q;
-    lq.addEventListener("input", () => {
-      view.q = lq.value;
-      paintLadder();
-      // repainting replaces the input's siblings, not the input itself, so focus survives
-    });
-  }
-  const lexpand = document.getElementById("lexpand");
-  if (lexpand) {
-    lexpand.onclick = () => {
-      view.open = !view.open;
-      paintLadder();
-    };
-  }
-  paintLadder();
+  mountLadder("lladder");
 
   const q = document.getElementById("apq") as HTMLInputElement | null;
   if (q) {

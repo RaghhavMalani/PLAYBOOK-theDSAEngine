@@ -276,6 +276,36 @@
   <div class="ref" id="refTable"></div>
 </section>
 
+<!-- ======================= ELEMENT TYPES ======================= -->
+<section class="mod wrap reveal" id="elements">
+  <div class="tag"><i></i><span>Module 06b // what is in the box</span></div>
+  <h2 class="mod">What can go <em>inside</em>?</h2>
+  <p class="brief">
+    The table above is about <b>which method to call</b>. This is about <b>what you put in the
+    container and what that decision costs</b> — a number, a pair, a struct, a string, another
+    container, a flag, a pointer. Twelve levels, easy to extreme, and every byte count below was
+    <b>measured, not looked up</b>: <code>sizeof</code> and <code>alignof</code> in C++,
+    <code>sys.getsizeof</code> plus a reachable-bytes walk in Python, and timed loops after
+    warm-up in Java. The through-line is one question the three languages answer completely
+    differently — <b>does the container hold your values, or pointers to them?</b>
+  </p>
+  <div id="etLadder"></div>
+</section>
+
+<!-- ======================= OPERATIONS LADDER ======================= -->
+<section class="mod wrap reveal" id="ladder">
+  <div class="tag"><i></i><span>Module 06c // the operations ladder</span></div>
+  <h2 class="mod">Forty rungs,<br><em>three languages</em></h2>
+  <p class="brief">
+    Ordered so nothing appears before the thing it depends on — from “declare one and ask its
+    length” to the traps that only bite at 10⁵. Every snippet was <b>compiled and run</b>, and the
+    “actual output” blocks are literal stdout: 306 captured lines, none of them predicted. Each
+    rung carries how it works underneath, the exact function names in all three languages with
+    their costs, the executed disagreement between them, and a real problem solved with it.
+  </p>
+  <div id="lladder"></div>
+</section>
+
 <!-- ======================= TRAPS ======================= -->
 <section class="mod wrap reveal" id="traps">
   <div class="tag"><i></i><span>Module 07 // failure modes</span></div>

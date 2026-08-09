@@ -13,7 +13,9 @@
     "test:watch": "vitest",
     "sync:progress": "node scripts/import-progress.mjs ../leetcode-progress/progress.json && node scripts/generate-replays.mjs ../leetcode-progress",
     "sync:progress:contract": "node scripts/import-progress.mjs",
-    "sync:replays": "node scripts/generate-replays.mjs"
+    "sync:replays": "node scripts/generate-replays.mjs",
+    "verify:elements": "python3 scripts/element-types-verify/verify.py",
+    "verify:all": "npm run verify:ladder && npm run verify:elements && python3 scripts/check-snippets.py"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
