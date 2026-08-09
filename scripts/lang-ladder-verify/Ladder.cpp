@@ -1,6 +1,36 @@
 // Ladder.cpp — every rung of the 40-rung language ladder, executed.
 // g++ -std=c++17 -O2 -o ladder Ladder.cpp && ./ladder
-#include <bits/stdc++.h>
+/* Explicit standard headers rather than <bits/stdc++.h>.
+ *
+ * bits/stdc++.h is a libstdc++ convenience header — it is not standard C++, and it
+ * is absent on clang/libc++, on MSVC, and on some MinGW-w64 builds. It compiled
+ * fine on the Linux box these numbers were captured on and failed on Windows,
+ * which is exactly the kind of portability assumption a verification script must
+ * not make about the machine re-running it. */
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <chrono>
+#include <climits>
+#include <cstddef>
+#include <deque>
+#include <functional>
+#include <iostream>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <numeric>
+#include <queue>
+#include <random>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 using namespace std;
 
 template <class T> string vs(const vector<T>& v) {

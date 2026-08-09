@@ -14,3 +14,7 @@ vite.config.ts.timestamp-*
 # local scratch: lets the content tests run without installing vitest
 tsconfig.verify.json
 tsconfig.testrun.json
+
+# Python bytecode, created whenever the verify scripts import verify_common.
+__pycache__/
+*.pyc
