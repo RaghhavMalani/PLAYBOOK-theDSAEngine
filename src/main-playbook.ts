@@ -5,6 +5,7 @@ import { migrateLearningKeys } from "./lib/migrations";
 import { initRouter } from "./features/router";
 import { initGuide } from "./features/guide";
 import { initPrimers } from "./features/primers";
+import { initApproach } from "./features/approach";
 import { initPatterns } from "./features/patterns";
 import { initVisualiser } from "./features/visualiser";
 import { initDrill } from "./features/drill";
@@ -30,6 +31,7 @@ function boot(): void {
   initInterviewer();
   initGuide();
   initPrimers();
+  initApproach();
   initPatterns();
   initVisualiser();
   initCompanies();

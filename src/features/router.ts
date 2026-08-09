@@ -1,7 +1,7 @@
 import { $, $$ } from "../lib/dom";
 
 export type ViewId =
-  | "guide" | "arena" | "interviewer" | "lab" | "primers" | "patterns" | "viz" | "drill" | "log" | "progress" | "companies" | "essentials" | "io" | "sql" | "plan" | "sheet";
+  | "guide" | "arena" | "interviewer" | "lab" | "primers" | "approach" | "patterns" | "viz" | "drill" | "log" | "progress" | "companies" | "essentials" | "io" | "sql" | "plan" | "sheet";
 
 const VIEWS: readonly (readonly [ViewId, string])[] = [
   ["guide", "today"],
@@ -10,6 +10,7 @@ const VIEWS: readonly (readonly [ViewId, string])[] = [
   ["interviewer", "ai interviewer"],
   ["lab", "replay lab"],
   ["primers", "foundations"],
+  ["approach", "approach"],
   ["patterns", "patterns"],
   ["viz", "visualiser"],
   ["drill", "drill"],

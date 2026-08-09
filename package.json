@@ -8,6 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "verify:ladder": "python3 scripts/lang-ladder-verify/verify.py",
     "test": "vitest run",
     "test:watch": "vitest",
     "sync:progress": "node scripts/import-progress.mjs ../leetcode-progress/progress.json && node scripts/generate-replays.mjs ../leetcode-progress",
