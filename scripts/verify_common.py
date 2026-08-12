@@ -69,9 +69,59 @@ def _run(cmd: list[str], what: str, **kw) -> subprocess.CompletedProcess:
     return p
 
 
+# The spelling of "C++17" changed across GCC releases: GCC 8 and later accept
+# -std=c++17, GCC 5 through 7 only accept the pre-standardisation -std=c++1z, and
+# anything older has no C++17 at all. Hardcoding one of them means the script works
+# on the machine it was written on, which is precisely the failure this file exists
+# to stop repeating. So the flag is discovered by compiling a probe rather than
+# assumed, and the answer is cached because it cannot change mid-run.
+_STD_FLAGS = ("-std=c++17", "-std=c++1z")
+_std_flag_cache: list[str | None] = []
+
+# Structured bindings are the one genuinely C++17 feature the programs use
+# (Ladder.cpp, rung 18). If this compiles, everything else will.
+_PROBE = "#include <tuple>\nint main(){ auto [a, b] = std::make_tuple(1, 2); return a + b - 3; }\n"
+
+
+def cpp_std_flag(workdir: pathlib.Path) -> str | None:
+    """The first C++17 spelling this compiler accepts, or None if it has none."""
+    if _std_flag_cache:
+        return _std_flag_cache[0]
+    probe = workdir / "_stdprobe.cpp"
+    probe.write_text(_PROBE, encoding="utf-8")
+    out = workdir / ("_stdprobe.exe" if sys.platform == "win32" else "_stdprobe.bin")
+    for flag in _STD_FLAGS:
+        p = subprocess.run(
+            ["g++", flag, "-o", str(out), str(probe)], capture_output=True, text=True
+        )
+        if p.returncode == 0:
+            _std_flag_cache.append(flag)
+            return flag
+    _std_flag_cache.append(None)
+    return None
+
+
 def run_cpp(src: pathlib.Path, workdir: pathlib.Path) -> str:
+    flag = cpp_std_flag(workdir)
+    if flag is None:
+        ver = live_toolchain()["cpp"]
+        print(f"\n  Your C++ compiler is too old to build these programs.\n", file=sys.stderr)
+        print(f"    detected: {ver}", file=sys.stderr)
+        print(f"    tried:    {', '.join(_STD_FLAGS)} — none accepted\n", file=sys.stderr)
+        print(
+            "  The programs use structured bindings (`auto [a, b] = ...`), which is C++17.\n"
+            "  GCC 8+ accepts -std=c++17; GCC 5-7 accept -std=c++1z; older GCC has neither.\n"
+            "\n  On Windows the usual fix is a current MinGW-w64:\n"
+            "    winget install BrechtSanders.WinLibs.POSIX.UCRT\n"
+            "  or MSYS2, then `pacman -S mingw-w64-ucrt-x86_64-gcc`. Open a NEW terminal\n"
+            "  afterwards and make sure the new g++ comes first on PATH.\n"
+            "\n  Nothing else is affected: `npm run build` and `npm run typecheck` do not\n"
+            "  need a C++ compiler. Only re-proving the captured output does.\n",
+            file=sys.stderr,
+        )
+        raise SystemExit(2)
     exe = workdir / (src.stem + (".exe" if sys.platform == "win32" else ".bin"))
-    _run(["g++", "-std=c++17", "-O2", "-o", str(exe), str(src)], f"compiling {src.name}")
+    _run(["g++", flag, "-O2", "-o", str(exe), str(src)], f"compiling {src.name}")
     return _run([str(exe)], f"running {exe.name}").stdout
 
 
