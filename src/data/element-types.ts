@@ -29,44 +29,13 @@
  * getsizeof from a real run means the page cannot quietly rot.
  */
 
-export type ElemTier = "easy" | "medium" | "hard" | "extreme";
-export type LangKey = "py" | "cpp" | "java";
-
-/** One row of the per-language declaration reference. */
-export interface DeclRow {
-  /** how you declare or spell it */
-  decl: string;
-  /** what one element actually occupies */
-  bytes: string;
-  /** the thing that surprises people */
-  note: string;
-}
-
-export interface ElementLevel {
-  n: number;
-  /** what is in the box at this level */
-  title: string;
-  tier: ElemTier;
-  /** the one-line version */
-  what: string;
-  /** why this level is where it is on the ladder */
-  why: string;
-  /** the memory picture — what the machine actually lays out */
-  layout: string;
-  py: string;
-  cpp: string;
-  java: string;
-  /** per-language declaration + cost reference */
-  decl: Record<LangKey, DeclRow[]>;
-  /** literal stdout from the three measurement programs */
-  measured: string;
-  /** the difference that costs memory or time */
-  differs: string;
-  /** the mistake this level exists to prevent */
-  trap?: string;
-  /** where this shows up in real problems */
-  see?: string[];
-}
+// The types moved to deep-types.ts once memory-deep.ts needed the same shape.
+// Re-exported under the original names so nothing that imports from here breaks.
+import type { DeepTier, LangKey, DeclRow, DeepLevel } from "./deep-types";
+export { DEEP_TIERS as ELEMENT_TIERS, DEEP_RUNTIMES as ELEMENT_RUNTIMES } from "./deep-types";
+export type { LangKey, DeclRow } from "./deep-types";
+export type ElemTier = DeepTier;
+export type ElementLevel = DeepLevel;
 
 export const ELEMENT_LEVELS: readonly ElementLevel[] = [
   {
@@ -861,14 +830,4 @@ v.clear();               // size 0, capacity unchanged`,
     trap: "<code>clear()</code> sets the size to zero and leaves the capacity alone in all three. If you are reusing a container across test cases and watching memory climb, that is why — you need <code>shrink_to_fit</code>, <code>trimToSize</code>, or a fresh object.",
     see: ["any problem building a result of unknown size", "LC 1store-and-scan problems", "multi-testcase harnesses"],
   },
-];
-
-/** Tiers, in ladder order, for the level filter. */
-export const ELEMENT_TIERS = ["easy", "medium", "hard", "extreme"] as const;
-
-/** The runtimes every number on this page was measured on. */
-export const ELEMENT_RUNTIMES: { key: LangKey; label: string; runtime: string }[] = [
-  { key: "py", label: "python", runtime: "CPython 3.10.12" },
-  { key: "cpp", label: "c++", runtime: "g++ 11.4.0, -std=c++17" },
-  { key: "java", label: "java", runtime: "OpenJDK 11.0.31" },
 ];

@@ -15,8 +15,9 @@
     "sync:progress:contract": "node scripts/import-progress.mjs",
     "sync:replays": "node scripts/generate-replays.mjs",
     "verify:elements": "node scripts/run-python.mjs scripts/element-types-verify/verify.py",
-    "verify:all": "npm run verify:ladder && npm run verify:elements && npm run verify:snippets",
-    "verify:snippets": "node scripts/run-python.mjs scripts/check-snippets.py"
+    "verify:all": "npm run verify:ladder && npm run verify:elements && npm run verify:deep && npm run verify:snippets",
+    "verify:snippets": "node scripts/run-python.mjs scripts/check-snippets.py",
+    "verify:deep": "node scripts/run-python.mjs scripts/memory-deep-verify/verify.py"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

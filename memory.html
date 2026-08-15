@@ -292,6 +292,23 @@
   <div id="etLadder"></div>
 </section>
 
+<!-- ======================= MEMORY DEEP DIVE ======================= -->
+<section class="mod wrap reveal" id="deep">
+  <div class="tag"><i></i><span>Module 06d // what decides whether it finishes</span></div>
+  <h2 class="mod">Four things that<br><em>break correct code</em></h2>
+  <p class="brief">
+    None of these changes your algorithm's complexity. All four change whether it finishes.
+    <b>Iterator invalidation</b> — the container moved out from under you, and only one of the
+    three languages tells you. <b>The cache hierarchy</b> — the same O(n) walked two ways,
+    measured. <b>Stack versus heap</b> — where things live, and why a deep DFS dies at a
+    different depth in each language. <b>Hash containers</b> — load factor, rehashing, and the
+    input that turns O(1) into O(n). Every verdict below was measured on a real run, and the
+    timing claims are recorded as comparisons rather than milliseconds, because a comparison
+    reproduces on your machine and a millisecond does not.
+  </p>
+  <div id="mdLadder"></div>
+</section>
+
 <!-- ======================= OPERATIONS LADDER ======================= -->
 <section class="mod wrap reveal" id="ladder">
   <div class="tag"><i></i><span>Module 06c // the operations ladder</span></div>

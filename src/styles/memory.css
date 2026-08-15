@@ -299,3 +299,28 @@ footer{border-top:1px solid var(--line);padding:50px 0 70px;color:var(--dim);fon
 section pre, section table, section canvas{max-width:100%}
 section pre{overflow-x:auto}
 .stats > *{min-width:0}
+
+/* ---------------- sticky module nav ----------------
+ * The page reached eleven modules, several of them long enough to scroll past on
+ * their own. The bar is built from the DOM at runtime (see module-nav.ts) so adding
+ * a section to the HTML is enough to make it appear here — a hardcoded list would
+ * fall out of date the first time someone added a module.
+ *
+ * It sits BELOW the hero rather than at the very top, so the page still opens on
+ * the title rather than on navigation. */
+.modnav{position:sticky;top:0;z-index:40;background:var(--panel);
+  border-block:1px solid var(--line2);margin:0 0 8px}
+.modnav-in{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;
+  max-width:1340px;margin:0 auto;padding:0 12px}
+.modnav-in::-webkit-scrollbar{display:none}
+.modnav-a{display:flex;align-items:baseline;gap:7px;white-space:nowrap;
+  font-family:var(--mono);font-size:10px;font-weight:650;letter-spacing:.05em;
+  padding:10px 13px;color:var(--dim);text-decoration:none;
+  border-bottom:2px solid transparent;transition:.14s}
+.modnav-a:hover{color:var(--txt);background:rgba(17,17,15,.04)}
+.modnav-a.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.modnav-n{font-size:9px;opacity:.6}
+.modnav-a.on .modnav-n{opacity:1}
+.modnav-a:focus-visible{outline:2px solid var(--cyan);outline-offset:-2px}
+@media(max-width:720px){ .modnav-a{padding:9px 10px;font-size:9.5px} }
+@media (prefers-reduced-motion:reduce){ .modnav-a{transition:none} }

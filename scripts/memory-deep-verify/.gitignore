@@ -1,0 +1,3 @@
+# Regenerated on every run by verify.py — the source programs are the artefact.
+*.out
+outputs.json
